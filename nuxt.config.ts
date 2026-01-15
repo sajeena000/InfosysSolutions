@@ -17,5 +17,8 @@ export default defineNuxtConfig({
         class: 'bg-slate-950 text-slate-200 antialiased'
       }
     }
+  },
+  nitro: {
+    preset: 'github-pages'
   }
 })
