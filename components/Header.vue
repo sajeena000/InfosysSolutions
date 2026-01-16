@@ -4,7 +4,10 @@
       <Menu class="w-6 h-6" />
     </button>
 
-    <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-full bg-slate-950/50 border border-white/10 w-64 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/50 transition-all">
+    <div 
+      v-if="route.path === '/team'"
+      class="hidden md:flex items-center gap-2 px-3 py-2 rounded-full bg-slate-950/50 border border-white/10 w-64 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/50 transition-all"
+    >
       <Search class="w-4 h-4 text-slate-500" />
       <input 
         v-model="store.searchQuery" 
@@ -13,6 +16,8 @@
         class="bg-transparent border-none outline-none text-sm text-white placeholder-slate-600 w-full" 
       />
     </div>
+    
+    <div v-else class="hidden md:block w-64"></div>
 
     <div class="flex items-center gap-4 relative">
       <button 
@@ -56,6 +61,7 @@
 import { Menu, Search, Bell } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
 
+const route = useRoute() 
 const store = useAppStore()
 const showNotifications = ref(false)
 
@@ -69,13 +75,13 @@ const notifications = [
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px; 
+  width: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155; 
+  background: #334155;
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
