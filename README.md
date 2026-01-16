@@ -4,11 +4,12 @@ A modern, fully responsive dashboard built with Nuxt 3, Tailwind CSS, and Pinia.
 
 ## Features
 
-- **UI/UX**: Dark mode "Glassmorphism" design with polished animations.
-- **State Management**: Global state with Pinia + LocalStorage persistence.
-- **Authentication**: Simulated Login/Logout flow with route protection (Middleware).
-- **Team Management**: Add, Edit, Delete, and Search team members.
-- **Interactive Analytics**: Dynamic charts and real-time dashboard stats.
+- **Authentication**: Secure Login/Logout flow with Route Guard Middleware.
+- **Team Management**: Create, Read, Update, Delete (CRUD) members with Search & Status Filters.
+- **Analytics**: Interactive charts with **CSV Export** functionality.
+- **State Management**: Global state via Pinia with **LocalStorage Persistence** (data survives refresh).
+- **Activity Log**: Automated system logging for all user actions.
+- **UI/UX**: Modern dark mode "Glassmorphism" design.
 
 ## 🛠️ Tech Stack
 
