@@ -1,75 +1,30 @@
-# Nuxt Minimal Starter
+# Nuxt 3 Dashboard 
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern, fully responsive admin dashboard built with Nuxt 3, Tailwind CSS, and Pinia.
 
-## Setup
+## Features
 
-Make sure to install dependencies:
+- **UI/UX**: Dark mode "Glassmorphism" design with polished animations.
+- **State Management**: Global state with Pinia + LocalStorage persistence.
+- **Authentication**: Simulated Login/Logout flow with route protection (Middleware).
+- **Team Management**: Add, Edit, Delete, and Search team members.
+- **Interactive Analytics**: Dynamic charts and real-time dashboard stats.
 
-```bash
-# npm
-npm install
+## 🛠️ Tech Stack
 
-# pnpm
-pnpm install
+- **Framework**: [Nuxt 3](https://nuxt.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **State**: [Pinia](https://pinia.vuejs.org/)
+- **Icons**: [Lucide Vue](https://lucide.dev/)
 
-# yarn
-yarn install
+## Getting Started
 
-# bun
-bun install
-```
+ **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+ **Run the development server:**
+   ```bash
+   npm run dev
+   ```
