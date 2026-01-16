@@ -20,6 +20,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
       <div class="lg:col-span-2 p-6 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm flex flex-col">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-lg font-display font-semibold text-white">Revenue Overview</h2>
@@ -40,16 +41,31 @@
 
       <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm">
         <h2 class="text-lg font-display font-semibold text-white mb-6">Recent Activity</h2>
+        
         <div class="space-y-6">
-          <div v-for="i in 4" :key="i" class="flex gap-4 items-start">
-            <div class="w-2 h-2 mt-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+          <div v-for="activity in store.activities" :key="activity.id" class="flex gap-4 items-start">
+            <div 
+              class="w-2 h-2 mt-2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+              :class="{
+                'bg-indigo-500': activity.type === 'info',
+                'bg-emerald-500': activity.type === 'success',
+                'bg-amber-500': activity.type === 'warning',
+                'bg-rose-500': activity.type === 'error'
+              }"
+            ></div>
+            
             <div>
-              <p class="text-sm text-slate-300">New user registered</p>
-              <p class="text-xs text-slate-500 mt-1">2 minutes ago</p>
+              <p class="text-sm text-slate-300">{{ activity.text }}</p>
+              <p class="text-xs text-slate-500 mt-1">{{ activity.time }}</p>
             </div>
+          </div>
+
+          <div v-if="store.activities.length === 0" class="text-sm text-slate-500 italic text-center py-4">
+            No recent activity recorded.
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>
