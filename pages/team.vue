@@ -6,11 +6,37 @@
         <p class="text-slate-400">Manage your squad permissions.</p>
       </div>
       
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex p-1 bg-slate-900/50 border border-white/5 rounded-lg backdrop-blur-sm">
+          <button 
+            v-for="status in ['all', 'online', 'offline']" 
+            :key="status"
+            @click="filterStatus = status"
+            class="px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-all"
+            :class="filterStatus === status ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'"
+          >
+            {{ status }}
+          </button>
+        </div>
+
+        <button 
+          @click="openAddModal"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
+        >
+          + Add Member
+        </button>
+      </div>
+    </div>
+
+    <div class="flex sm:hidden p-1 bg-slate-900/50 border border-white/5 rounded-lg backdrop-blur-sm w-full">
       <button 
-        @click="openAddModal"
-        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
+        v-for="status in ['all', 'online', 'offline']" 
+        :key="status"
+        @click="filterStatus = status"
+        class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-all"
+        :class="filterStatus === status ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'"
       >
-        + Add Member
+        {{ status }}
       </button>
     </div>
 
@@ -63,8 +89,8 @@
     </div>
 
     <div v-if="filteredTeam.length === 0" class="text-center py-20 border border-dashed border-white/10 rounded-2xl">
-      <p class="text-slate-500">No team members found matching your search.</p>
-      <button @click="store.searchQuery = ''" class="mt-2 text-indigo-400 hover:text-indigo-300 text-sm">Clear Search</button>
+      <p class="text-slate-500">No team members found.</p>
+      <button @click="store.searchQuery = ''; filterStatus = 'all'" class="mt-2 text-indigo-400 hover:text-indigo-300 text-sm">Clear Filters</button>
     </div>
 
     <Teleport to="body">
@@ -142,17 +168,18 @@
 </template>
 
 <script setup>
-import { MoreHorizontal, X, Trash2, Pencil } from 'lucide-vue-next' // Added Pencil
+import { MoreHorizontal, X, Trash2, Pencil } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
 
 const store = useAppStore()
 const showModal = ref(false)
 const toastRef = ref(null)
 
+const filterStatus = ref('all') 
+
 const isEditing = ref(false)
 const toastTitle = ref('')
 const toastMessage = ref('')
-
 const form = ref({
   id: null,
   name: '',
@@ -161,14 +188,26 @@ const form = ref({
 })
 
 const filteredTeam = computed(() => {
-  if (!store.searchQuery) return store.team
-  const query = store.searchQuery.toLowerCase()
-  return store.team.filter(member => 
-    member.name.toLowerCase().includes(query) || 
-    member.role.toLowerCase().includes(query) ||
-    member.email.toLowerCase().includes(query)
-  )
+  let result = store.team
+
+  if (filterStatus.value === 'online') {
+    result = result.filter(m => m.online)
+  } else if (filterStatus.value === 'offline') {
+    result = result.filter(m => !m.online)
+  }
+
+  if (store.searchQuery) {
+    const query = store.searchQuery.toLowerCase()
+    result = result.filter(member => 
+      member.name.toLowerCase().includes(query) || 
+      member.role.toLowerCase().includes(query) ||
+      member.email.toLowerCase().includes(query)
+    )
+  }
+  
+  return result
 })
+
 const openAddModal = () => {
   isEditing.value = false
   form.value = { id: null, name: '', email: '', role: 'Frontend Developer' }
