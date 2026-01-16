@@ -2,8 +2,13 @@ import { defineStore } from 'pinia'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
+    isAuthenticated: false, 
     searchQuery: '',
-    notifications: [] as string[],
+    userProfile: {
+      name: 'Intern Developer',
+      email: 'dev@dashboard.com',
+      notifications: true
+    },
     team: [
       { id: 1, name: 'Tom Holland', role: 'Frontend Lead', email: 'tom@dashboard.com', online: true, tags: ['Vue', 'Design'] },
       { id: 2, name: 'Sajeena Malla', role: 'Backend Dev', email: 'sajeena@dashboard.com', online: false, tags: ['Node', 'SQL'] },
@@ -13,20 +18,62 @@ export const useAppStore = defineStore('app', {
     ]
   }),
   
+  getters: {
+    totalTeamCount: (state) => state.team.length,
+    onlineCount: (state) => state.team.filter(m => m.online).length
+  },
+
   actions: {
+    initStore() {
+      if (process.client) { 
+        const savedState = localStorage.getItem('dashboard-state')
+        if (savedState) {
+          const parsed = JSON.parse(savedState)
+          this.userProfile = parsed.userProfile
+          this.team = parsed.team
+          this.isAuthenticated = parsed.isAuthenticated
+        }
+      }
+    },
+    
+    saveState() {
+      if (process.client) {
+        localStorage.setItem('dashboard-state', JSON.stringify({
+          userProfile: this.userProfile,
+          team: this.team,
+          isAuthenticated: this.isAuthenticated
+        }))
+      }
+    },
+
+    login() {
+      this.isAuthenticated = true
+      this.saveState()
+    },
+
+    logout() {
+      this.isAuthenticated = false
+      this.saveState()
+    },
+
     addTeamMember(member: any) {
       this.team.unshift({
         id: Date.now(),
-        online: false, 
-        tags: ['New'], 
+        online: false,
+        tags: ['New'],
         ...member
       })
+      this.saveState() 
     },
+
     removeTeamMember(email: string) {
       this.team = this.team.filter(m => m.email !== email)
+      this.saveState() 
     },
-    setSearch(query: string) {
-      this.searchQuery = query
+
+    updateSettings(payload: any) {
+      this.userProfile = { ...this.userProfile, ...payload }
+      this.saveState() 
     }
   }
 })
