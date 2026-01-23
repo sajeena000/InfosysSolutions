@@ -5,12 +5,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   
   try {
-    // Insert and return the newly created row (so UI has the real ID)
     const newMember = await db.insert(teamMembers).values({
       name: body.name,
       email: body.email,
       role: body.role,
-      tags: ['New'], // Default tag
+      tags: ['New'],
       online: false,
       avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${body.name}`
     }).returning();
