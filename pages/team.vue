@@ -55,7 +55,7 @@
             <Pencil class="w-4 h-4" />
           </button>
           <button 
-            @click="deleteMember(member.email)"
+            @click="deleteMember(member.id)"
             class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors"
             title="Remove Member"
           >
@@ -163,7 +163,7 @@
       </div>
     </Teleport>
 
-    <UiToast ref="toastRef" :title="toastTitle" :message="toastMessage" />
+    <UiToast ref="toastRef" :title="toastTitle" :message="toastMessage" :type="toastType" />
   </div>
 </template>
 
@@ -180,6 +180,8 @@ const filterStatus = ref('all')
 const isEditing = ref(false)
 const toastTitle = ref('')
 const toastMessage = ref('')
+const toastType = ref('success') 
+
 const form = ref({
   id: null,
   name: '',
@@ -225,24 +227,43 @@ const openEditModal = (member) => {
   showModal.value = true
 }
 
-const handleSubmit = () => {
-  if (isEditing.value) {
-    store.editTeamMember(form.value)
-    toastTitle.value = "Updated"
-    toastMessage.value = "Team member details updated."
-  } else {
-    store.addTeamMember({ ...form.value })
-    toastTitle.value = "Success"
-    toastMessage.value = "Team member invited successfully."
+const handleSubmit = async () => {
+  try {
+    if (isEditing.value) {
+      await store.editTeamMember(form.value)
+      toastTitle.value = "Updated"
+      toastMessage.value = "Team member details updated."
+      toastType.value = "success"
+    } else {
+      await store.addTeamMember({ ...form.value })
+      toastTitle.value = "Success"
+      toastMessage.value = "Team member added to database."
+      toastType.value = "success"
+    }
+    showModal.value = false 
+  } catch (error) {
+    toastTitle.value = "Error"
+    toastMessage.value = "Failed to save changes."
+    toastType.value = "error"
+    console.error(error)
+  } finally {
+    toastRef.value.show()
   }
-  
-  showModal.value = false
-  toastRef.value.show()
 }
 
-const deleteMember = (email) => {
-  if (confirm(`Remove ${email} from the team?`)) {
-    store.removeTeamMember(email)
+const deleteMember = async (id) => {
+  if (confirm(`Remove this member from the team?`)) {
+    try {
+      await store.removeTeamMember(id)
+      toastTitle.value = "Deleted"
+      toastMessage.value = "Member removed from database."
+      toastType.value = "success"
+    } catch (e) {
+      toastTitle.value = "Error"
+      toastMessage.value = "Could not delete member."
+      toastType.value = "error"
+    }
+    toastRef.value.show()
   }
 }
 </script>

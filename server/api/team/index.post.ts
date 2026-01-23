@@ -1,0 +1,25 @@
+import { db } from '../../utils/db';
+import { teamMembers } from '../../database/schema';
+
+export default defineEventHandler(async (event) => {
+  const body = await readBody(event);
+  
+  try {
+    // Insert and return the newly created row (so UI has the real ID)
+    const newMember = await db.insert(teamMembers).values({
+      name: body.name,
+      email: body.email,
+      role: body.role,
+      tags: ['New'], // Default tag
+      online: false,
+      avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${body.name}`
+    }).returning();
+
+    return newMember[0];
+  } catch (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to add member (Email might be duplicate)',
+    });
+  }
+});

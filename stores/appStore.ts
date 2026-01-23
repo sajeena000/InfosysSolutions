@@ -9,16 +9,8 @@ export const useAppStore = defineStore('app', {
       email: 'dev@dashboard.com',
       notifications: true
     },
-    activities: [
-      { id: 1, text: 'System initialized', time: 'Just now', type: 'info' }
-    ],
-    team: [
-      { id: 1, name: 'Tom Holland', role: 'Frontend Lead', email: 'tom@dashboard.com', online: true, tags: ['Vue', 'Design'] },
-      { id: 2, name: 'Sajeena Malla', role: 'Backend Dev', email: 'sajeena@dashboard.com', online: false, tags: ['Node', 'SQL'] },
-      { id: 3, name: 'Chris Hemsworth', role: 'Product Designer', email: 'hemsworth@dashboard.com', online: true, tags: ['Figma', 'UX'] },
-      { id: 4, name: 'Nishant Malla', role: 'DevOps Engineer', email: 'nishant@dashboard.com', online: false, tags: ['AWS', 'CI/CD'] },
-      { id: 5, name: 'Ryan Gosling', role: 'Intern', email: 'ryan@dashboard.com', online: true, tags: ['Learning'] },
-    ]
+    activities: [], 
+    team: []        
   }),
   
   getters: {
@@ -31,74 +23,82 @@ export const useAppStore = defineStore('app', {
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       this.activities.unshift({ id: Date.now(), text, time, type })
       
-      if (this.activities.length > 10) this.activities.pop()
+      if (this.activities.length > 20) this.activities.pop()
     },
 
-    initStore() {
+    async initStore() {
       if (import.meta.client) { 
-        const savedState = localStorage.getItem('dashboard-state')
-        if (savedState) {
-          const parsed = JSON.parse(savedState)
-          this.userProfile = parsed.userProfile || this.userProfile
-          this.team = parsed.team || this.team
-          this.isAuthenticated = parsed.isAuthenticated
-          this.activities = parsed.activities || this.activities 
-        }
+        const auth = localStorage.getItem('is-auth')
+        this.isAuthenticated = auth === 'true'
+      }
+
+      try {
+        const data = await $fetch('/api/team')
+        this.team = data
+      } catch (e) {
+        console.error("Failed to load team", e)
       }
     },
     
-    saveState() {
-      if (import.meta.client) {
-        localStorage.setItem('dashboard-state', JSON.stringify({
-          userProfile: this.userProfile,
-          team: this.team,
-          isAuthenticated: this.isAuthenticated,
-          activities: this.activities 
-        }))
-      }
-    },
-
     login() {
       this.isAuthenticated = true
-      this.logActivity('User logged in successfully', 'success')
-      this.saveState()
+      localStorage.setItem('is-auth', 'true')
+      this.initStore() 
     },
 
     logout() {
       this.isAuthenticated = false
-      this.saveState()
+      localStorage.removeItem('is-auth')
+      this.team = []
     },
 
-    addTeamMember(member: any) {
-      this.team.unshift({
-        id: Date.now(),
-        online: false,
-        tags: ['New'],
-        ...member
-      })
-      this.logActivity(`New member added: ${member.name}`, 'success') 
-      this.saveState() 
-    },
-
-    editTeamMember(updatedMember: any) {
-      const index = this.team.findIndex(m => m.id === updatedMember.id)
-      if (index !== -1) {
-        this.team[index] = { ...this.team[index], ...updatedMember }
-        this.logActivity(`Member updated: ${updatedMember.name}`, 'info') 
-        this.saveState()
+    async addTeamMember(member: any) {
+      try {
+        const newMember = await $fetch('/api/team', {
+            method: 'POST',
+            body: member
+        })
+        this.team.unshift(newMember)
+        this.logActivity(`New member added: ${member.name}`, 'success') 
+      } catch (e) {
+        this.logActivity('Failed to add member', 'error')
+        throw e 
       }
     },
 
-    removeTeamMember(email: string) {
-      this.team = this.team.filter(m => m.email !== email)
-      this.logActivity(`Member removed: ${email}`, 'warning') 
-      this.saveState() 
+    async editTeamMember(updatedMember: any) {
+        try {
+            const res = await $fetch(`/api/team/${updatedMember.id}`, {
+                method: 'PUT',
+                body: updatedMember
+            })
+            
+            const index = this.team.findIndex(m => m.id === updatedMember.id)
+            if (index !== -1) {
+                this.team[index] = res
+            }
+            this.logActivity(`Member updated: ${updatedMember.name}`, 'info') 
+        } catch (e) {
+            this.logActivity('Failed to update member', 'error')
+            throw e 
+        }
     },
 
+    async removeTeamMember(id: number) { 
+      try {
+        await $fetch(`/api/team/${id}`, { method: 'DELETE' })
+        
+        this.team = this.team.filter(m => m.id !== id)
+        this.logActivity(`Member removed`, 'warning') 
+      } catch (e) {
+        this.logActivity('Failed to remove member', 'error')
+        throw e 
+      }
+    },
+    
     updateSettings(payload: any) {
       this.userProfile = { ...this.userProfile, ...payload }
       this.logActivity('User profile settings updated', 'info') 
-      this.saveState() 
     }
   }
 })
