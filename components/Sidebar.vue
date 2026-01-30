@@ -32,7 +32,18 @@
         />
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-white truncate">{{ store.userProfile.name }}</p>
-          <p class="text-xs text-slate-500 truncate">{{ store.userProfile.email }}</p>
+          <div class="flex items-center gap-1.5">
+            <span 
+              class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded font-semibold"
+              :class="{
+                'bg-indigo-500/20 text-indigo-400': currentRole === 'admin',
+                'bg-amber-500/20 text-amber-400': currentRole === 'manager',
+                'bg-slate-500/20 text-slate-400': currentRole === 'member'
+              }"
+            >
+              {{ currentRole }}
+            </span>
+          </div>
         </div>
 
         <button 
@@ -44,18 +55,36 @@
         </button>
       </div>
     </div>
+    
+    <UiConfirmModal
+      v-model="showLogoutConfirm"
+      title="Log Out"
+      description="Are you sure you want to log out of your account?"
+      confirm-text="Log Out"
+      type="danger"
+      @confirm="confirmLogout"
+    />
   </aside>
 </template>
 
 <script setup>
 import { Home, PieChart, Settings, Users, LogOut } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
+import { usePermissions } from '~/composables/usePermissions'
 
 const route = useRoute()
 const router = useRouter()
-const store = useAppStore() 
+const store = useAppStore()
+const { currentRole } = usePermissions()
+
+const showLogoutConfirm = ref(false)
 
 const handleLogout = () => {
+  showLogoutConfirm.value = true
+}
+
+const confirmLogout = () => {
+  showLogoutConfirm.value = false
   store.logout()
   router.push('/login')
 }
