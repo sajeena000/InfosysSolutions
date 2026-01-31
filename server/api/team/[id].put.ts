@@ -11,7 +11,12 @@ export default defineEventHandler(async (event) => {
       .set({
         name: body.name,
         role: body.role,
-        email: body.email
+        email: body.email,
+        bio: body.bio,
+        jobTitle: body.jobTitle,
+        linkedinUrl: body.linkedinUrl,
+        imageUrl: body.imageUrl,
+        isPublic: body.isPublic
       })
       .where(eq(teamMembers.id, id))
       .returning();

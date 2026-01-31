@@ -11,7 +11,13 @@ export default defineEventHandler(async (event) => {
       role: body.role,
       tags: ['New'],
       online: false,
-      avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${body.name}`
+      avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${body.name}`,
+      // New public profile fields
+      bio: body.bio || null,
+      jobTitle: body.jobTitle || null,
+      linkedinUrl: body.linkedinUrl || null,
+      imageUrl: body.imageUrl || null,
+      isPublic: body.isPublic || false
     }).returning();
 
     return newMember[0];

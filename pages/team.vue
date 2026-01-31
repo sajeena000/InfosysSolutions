@@ -140,9 +140,69 @@
                   <option>Frontend Developer</option>
                   <option>Backend Developer</option>
                   <option>Product Designer</option>
-                  <option>Intern</option>
                   <option>DevOps Engineer</option>
                 </select>
+              </div>
+
+              <!-- Public Profile Section -->
+               <div class="pt-4 border-t border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                  <label class="text-sm font-medium text-slate-300">Public Profile</label>
+                  <button 
+                    type="button"
+                    @click="form.isPublic = !form.isPublic"
+                    class="w-11 h-6 rounded-full transition-colors relative"
+                    :class="form.isPublic ? 'bg-indigo-600' : 'bg-slate-700'"
+                  >
+                    <div 
+                      class="w-4 h-4 bg-white rounded-full absolute top-1 transition-transform"
+                      :class="form.isPublic ? 'left-6' : 'left-1'"
+                    ></div>
+                  </button>
+                </div>
+
+                <div v-if="form.isPublic" class="space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div class="space-y-1">
+                    <label class="text-sm font-medium text-slate-300">Job Title <span class="text-slate-500 font-normal">(Optional)</span></label>
+                    <input 
+                      v-model="form.jobTitle" 
+                      type="text" 
+                      placeholder="e.g. Senior Frontend Engineer"
+                      class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all" 
+                    />
+                  </div>
+
+                  <div class="space-y-1">
+                    <label class="text-sm font-medium text-slate-300">Bio</label>
+                    <textarea 
+                      v-model="form.bio" 
+                      rows="3"
+                      placeholder="Short description for the public page..."
+                      class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all resize-none" 
+                    ></textarea>
+                  </div>
+
+                  <div class="space-y-1">
+                    <label class="text-sm font-medium text-slate-300">LinkedIn URL</label>
+                    <input 
+                      v-model="form.linkedinUrl" 
+                      type="url" 
+                      placeholder="https://linkedin.com/in/..."
+                      class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all" 
+                    />
+                  </div>
+
+                  <div class="space-y-1">
+                    <label class="text-sm font-medium text-slate-300">Profile Image URL</label>
+                    <input 
+                      v-model="form.imageUrl" 
+                      type="url" 
+                      placeholder="https://..."
+                      class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all" 
+                    />
+                    <p class="text-xs text-slate-500">Leave empty to use default avatar</p>
+                  </div>
+                </div>
               </div>
 
               <div class="pt-4 flex gap-3">
@@ -200,7 +260,12 @@ const form = ref({
   id: null,
   name: '',
   email: '',
-  role: 'Frontend Developer'
+  role: 'Frontend Developer',
+  isPublic: false,
+  jobTitle: '',
+  bio: '',
+  linkedinUrl: '',
+  imageUrl: ''
 })
 
 const filteredTeam = computed(() => {
@@ -226,7 +291,17 @@ const filteredTeam = computed(() => {
 
 const openAddModal = () => {
   isEditing.value = false
-  form.value = { id: null, name: '', email: '', role: 'Frontend Developer' }
+  form.value = { 
+    id: null, 
+    name: '', 
+    email: '', 
+    role: 'Frontend Developer',
+    isPublic: false,
+    jobTitle: '',
+    bio: '',
+    linkedinUrl: '',
+    imageUrl: ''
+  }
   showModal.value = true
 }
 
@@ -236,10 +311,16 @@ const openEditModal = (member) => {
     id: member.id,
     name: member.name, 
     email: member.email, 
-    role: member.role 
+    role: member.role,
+    isPublic: member.isPublic || false,
+    jobTitle: member.jobTitle || '',
+    bio: member.bio || '',
+    linkedinUrl: member.linkedinUrl || '',
+    imageUrl: member.imageUrl || ''
   }
   showModal.value = true
 }
+
 
 const handleSubmit = async () => {
   try {
