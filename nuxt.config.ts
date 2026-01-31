@@ -13,9 +13,9 @@ export default defineNuxtConfig({
     display: 'swap'
   },
   app: {
-    baseURL: '/dashboard-ui/',
+    baseURL: '/infosys/',
     head: {
-      title: 'The Dashboard',
+      title: 'Infosys Solutions',
       bodyAttrs: {
         class: 'bg-slate-950 text-slate-200 antialiased'
       }
