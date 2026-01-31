@@ -1,103 +1,199 @@
 <template>
-  <div class="space-y-8">
-    <div>
-      <h1 class="text-3xl font-display font-bold text-white mb-2">Dashboard</h1>
-      <p class="text-slate-400">Overview of your current performance metrics.</p>
-    </div>
+  <div>
+    <section class="relative min-h-[90vh] flex items-center overflow-hidden">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard title="Total Revenue" value="$45,231" :trend="12.5" :icon="DollarSign" />
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 dark:bg-none dark:bg-slate-950"></div>
+      <div class="absolute inset-0">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 dark:bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-indigo-400/20 dark:bg-sky-500/10 rounded-full blur-3xl"></div>
+      </div>
       
-      <StatCard 
-        title="Team Members" 
-        :value="store.totalTeamCount" 
-        :trend="8.2" 
-        :icon="Users" 
-      />
-      
-      <StatCard title="Bounce Rate" value="42.3%" :trend="-2.1" :icon="Activity" />
-      <StatCard title="Active Sessions" value="12m 30s" :trend="4.5" :icon="Clock" />
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <div class="lg:col-span-2 p-6 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm flex flex-col">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-display font-semibold text-white">Revenue Overview</h2>
-          
-          <select 
-            v-model="selectedPeriod"
-            class="bg-slate-950 border border-white/10 rounded-lg text-xs text-slate-400 px-3 py-1 outline-none focus:border-indigo-500 transition-colors cursor-pointer"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-          </select>
+      <div class="relative max-w-7xl mx-auto px-4 py-20 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/80 text-sm mb-8">
+          <Sparkles class="w-4 h-4" />
+          <span>Transforming Ideas into Digital Reality</span>
         </div>
         
-        <div class="h-64 w-full">
-          <SimpleChart :data="chartData" />
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6 leading-tight">
+          Building Tomorrow's
+          <span class="block bg-gradient-to-r from-sky-300 to-indigo-400 bg-clip-text text-transparent">
+            Software Solutions
+          </span>
+        </h1>
+        
+        <p class="max-w-2xl mx-auto text-lg md:text-xl text-white/80 mb-10">
+          We're a B2B software agency specializing in outsourcing and custom solutions. 
+          From web applications to AI-powered systems, we bring your vision to life.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <NuxtLink 
+            to="/contact" 
+            class="px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold shadow-xl shadow-blue-500/20 hover:scale-105 hover:bg-blue-500 transition-all"
+          >
+            Start Your Project
+          </NuxtLink>
+          <NuxtLink 
+            to="/services" 
+            class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-xl font-semibold hover:bg-white/20 transition-all"
+          >
+            View Services
+          </NuxtLink>
+        </div>
+        
+        <!-- Stats -->
+        <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="text-center">
+            <p class="text-4xl font-display font-bold text-white mb-1">150+</p>
+            <p class="text-white/60 text-sm">Projects Delivered</p>
+          </div>
+          <div class="text-center">
+            <p class="text-4xl font-display font-bold text-white mb-1">50+</p>
+            <p class="text-white/60 text-sm">Happy Clients</p>
+          </div>
+          <div class="text-center">
+            <p class="text-4xl font-display font-bold text-white mb-1">8+</p>
+            <p class="text-white/60 text-sm">Years Experience</p>
+          </div>
+          <div class="text-center">
+            <p class="text-4xl font-display font-bold text-white mb-1">24/7</p>
+            <p class="text-white/60 text-sm">Support Available</p>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm">
-        <h2 class="text-lg font-display font-semibold text-white mb-6">Recent Activity</h2>
-        
-        <div class="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-          <div v-for="activity in store.activities" :key="activity.id" class="flex gap-4 items-start">
-            <div 
-              class="w-2 h-2 mt-2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)] shrink-0"
-              :class="{
-                'bg-indigo-500': activity.type === 'info',
-                'bg-emerald-500': activity.type === 'success',
-                'bg-amber-500': activity.type === 'warning',
-                'bg-rose-500': activity.type === 'error'
-              }"
-            ></div>
-            
-            <div>
-              <p class="text-sm text-slate-300">{{ activity.text }}</p>
-              <p class="text-xs text-slate-500 mt-1">{{ activity.time }}</p>
+    <!-- Features Section -->
+    <section class="py-20 bg-white dark:bg-slate-900 transition-colors duration-300">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white mb-4">
+            What We Offer
+          </h2>
+          <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Comprehensive software solutions tailored to your business needs
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div v-for="service in services" :key="service.title" class="group p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:border-slate-600">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/10 dark:bg-slate-700 group-hover:bg-blue-500/20 dark:group-hover:bg-slate-600 flex items-center justify-center mb-4 transition-colors">
+              <component :is="service.icon" class="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-white transition-colors" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2 transition-colors">
+              {{ service.title }}
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-300 text-sm transition-colors">
+              {{ service.description }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Snippet -->
+    <section class="py-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <span class="text-blue-600 dark:text-blue-400 font-medium text-sm uppercase tracking-wider">About Us</span>
+            <h2 class="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white mt-2 mb-6">
+              Your Trusted Technology Partner
+            </h2>
+            <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+              Founded with a vision to bridge the gap between innovative ideas and technological execution, 
+              Infosys Solutions has grown into a leading B2B software agency. We specialize in delivering 
+              high-quality outsourcing services and custom software solutions that drive business growth.
+            </p>
+            <p class="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+              Our team of experienced developers, designers, and project managers work collaboratively 
+              to ensure every project exceeds expectations. From startups to enterprises, we've helped 
+              businesses across industries transform their digital presence.
+            </p>
+            <NuxtLink 
+              to="/about/company" 
+              class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold hover:gap-4 transition-all"
+            >
+              Learn More About Us
+              <ArrowRight class="w-4 h-4" />
+            </NuxtLink>
+          </div>
+          
+          <div class="relative">
+            <div class="aspect-square bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl overflow-hidden shadow-2xl">
+              <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800')] bg-cover bg-center mix-blend-overlay opacity-50"></div>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center text-white p-8">
+                  <p class="text-6xl font-display font-bold mb-2">8+</p>
+                  <p class="text-xl">Years of Excellence</p>
+                </div>
+              </div>
+            </div>
+            <!-- Floating Card -->
+            <div class="absolute -bottom-6 -left-6 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                  <CheckCircle class="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
+                </div>
+                <div>
+                  <p class="font-semibold text-slate-900 dark:text-white">100% Success Rate</p>
+                  <p class="text-sm text-slate-600 dark:text-slate-400">Project Delivery</p>
+                </div>
+              </div>
             </div>
           </div>
-
-          <div v-if="store.activities.length === 0" class="text-sm text-slate-500 italic text-center py-4">
-            No recent activity recorded.
-          </div>
         </div>
       </div>
+    </section>
 
-    </div>
+    <!-- CTA Section -->
+    <section class="py-20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300">
+      <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white mb-6">
+          Ready to Start Your Project?
+        </h2>
+        <p class="text-slate-600 dark:text-white/80 mb-8 text-lg">
+          Let's discuss how we can help bring your vision to life.
+        </p>
+        <NuxtLink 
+          to="/contact" 
+          class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold shadow-xl hover:scale-105 transition-all hover:bg-blue-500"
+        >
+          Get in Touch
+          <ArrowRight class="w-5 h-5" />
+        </NuxtLink>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { DollarSign, Users, Activity, Clock } from 'lucide-vue-next'
-import { useAppStore } from '~/stores/appStore'
+import { Sparkles, Globe, Smartphone, Bot, Cloud, ArrowRight, CheckCircle } from 'lucide-vue-next'
 
-const store = useAppStore()
+definePageMeta({
+  layout: 'public'
+})
 
-const selectedPeriod = ref('7d')
-
-// Reactive data storage with defaults
-const data7d = ref([35, 45, 30, 60, 75, 50, 65, 80, 70, 45, 90, 60])
-const data30d = ref([20, 25, 40, 30, 45, 35, 30, 50, 60, 55, 40, 30])
-
-// Fetch data from API on mount
-const fetchData = async () => {
-  try {
-    const response = await $fetch('/api/revenue')
-    data7d.value = response['7d']
-    data30d.value = response['30d']
-  } catch (error) {
-    console.error('Failed to fetch revenue data:', error)
+const services = [
+  {
+    icon: Globe,
+    title: 'Web Development',
+    description: 'Full-stack web applications with modern frameworks and responsive design.'
+  },
+  {
+    icon: Smartphone,
+    title: 'Mobile Apps',
+    description: 'Native and cross-platform mobile applications for iOS and Android.'
+  },
+  {
+    icon: Bot,
+    title: 'AI Solutions',
+    description: 'Machine learning and AI-powered solutions to automate and optimize.'
+  },
+  {
+    icon: Cloud,
+    title: 'DevOps & Cloud',
+    description: 'Cloud infrastructure, CI/CD pipelines, and scalable architectures.'
   }
-}
-
-onMounted(() => {
-  fetchData()
-})
-
-const chartData = computed(() => {
-  return selectedPeriod.value === '7d' ? data7d.value : data30d.value
-})
+]
 </script>
