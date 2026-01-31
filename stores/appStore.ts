@@ -25,23 +25,37 @@ interface TeamMember {
   online: boolean | null
   avatarUrl: string | null
   createdAt: string | null
+  linkedinUrl?: string | null
+  bio?: string | null
+  jobTitle?: string | null
+  imageUrl?: string | null
+  isPublic?: boolean | null
+}
+
+interface AdminProfile {
+  id?: number
+  name: string
+  email: string
+  isPrimary?: boolean | null
+  allowRegistration?: boolean | null
 }
 
 export const useAppStore = defineStore('app', {
   state: () => ({
-    isAuthenticated: false, 
+    isAuthenticated: false,
     searchQuery: '',
     userProfile: {
-      name: 'Intern Developer',
-      email: 'dev@dashboard.com',
-      notifications: true,
-      userRole: 'admin' as 'admin' | 'manager' | 'member'
-    },
-    activities: [] as Activity[], 
+      id: undefined,
+      name: 'Admin',
+      email: 'admin@dashboard.com',
+      isPrimary: false,
+      allowRegistration: false
+    } as AdminProfile,
+    activities: [] as Activity[],
     team: [] as TeamMember[],
     notifications: [] as Notification[]
   }),
-  
+
   getters: {
     totalTeamCount: (state) => state.team.length,
     onlineCount: (state) => state.team.filter(m => m.online).length,
@@ -56,7 +70,7 @@ export const useAppStore = defineStore('app', {
           body: { text, type }
         })
         this.activities.unshift(newActivity)
-        
+
         if (this.activities.length > 20) this.activities.pop()
       } catch (e) {
         console.error('Failed to log activity', e)
@@ -64,110 +78,111 @@ export const useAppStore = defineStore('app', {
     },
 
     async initStore() {
-      if (import.meta.client) { 
+      if (import.meta.client) {
         const auth = localStorage.getItem('is-auth')
         this.isAuthenticated = auth === 'true'
       }
 
+      // Try to get authenticated user info
+      if (this.isAuthenticated) {
+        try {
+          const me = await $fetch('/api/auth/me')
+          this.userProfile = {
+            id: me.id,
+            name: me.name,
+            email: me.email,
+            isPrimary: me.isPrimary,
+            allowRegistration: me.allowRegistration
+          }
+        } catch (e) {
+          // Session invalid, clear auth state
+          this.isAuthenticated = false
+          localStorage.removeItem('is-auth')
+        }
+      }
+
       try {
-        const [teamData, activityData, settingsData, notificationsData] = await Promise.all([
+        const [teamData, activityData, notificationsData] = await Promise.all([
           $fetch('/api/team'),
           $fetch('/api/activities'),
-          $fetch('/api/settings'),
           $fetch('/api/notifications')
         ])
         this.team = teamData
         this.activities = activityData
         this.notifications = notificationsData
-        if (settingsData) {
-            this.userProfile = {
-                name: settingsData.name,
-                email: settingsData.email,
-                notifications: settingsData.notifications ?? true,
-                userRole: (settingsData.userRole as 'admin' | 'manager' | 'member') ?? 'admin'
-            }
-        }
       } catch (e) {
         console.error("Failed to load data", e)
       }
     },
-    
-    login() {
+
+    async login(userData: AdminProfile) {
       this.isAuthenticated = true
+      this.userProfile = userData
       localStorage.setItem('is-auth', 'true')
-      this.initStore() 
+      await this.initStore()
     },
 
-    logout() {
+    async logout() {
+      try {
+        await $fetch('/api/auth/logout', { method: 'POST' })
+      } catch (e) {
+        console.error('Logout API failed', e)
+      }
       this.isAuthenticated = false
       localStorage.removeItem('is-auth')
       this.team = []
+      this.userProfile = {
+        id: undefined,
+        name: 'Admin',
+        email: 'admin@dashboard.com',
+        isPrimary: false,
+        allowRegistration: false
+      }
     },
 
     async addTeamMember(member: any) {
       try {
         const newMember = await $fetch('/api/team', {
-            method: 'POST',
-            body: member
+          method: 'POST',
+          body: member
         })
         this.team.unshift(newMember!)
         this.logActivity(`New member added: ${member.name}`, 'success')
         this.createNotification(`New member joined: ${member.name}`, 'success', 'bg-emerald-500')
       } catch (e) {
         this.logActivity('Failed to add member', 'error')
-        throw e 
+        throw e
       }
     },
 
     async editTeamMember(updatedMember: any) {
-        try {
-            const res = await $fetch(`/api/team/${updatedMember.id}`, {
-                method: 'PUT',
-                body: updatedMember
-            })
-            
-            const index = this.team.findIndex(m => m.id === updatedMember.id)
-            if (index !== -1 && res) {
-                this.team[index] = res
-            }
-            this.logActivity(`Member updated: ${updatedMember.name}`, 'info') 
-        } catch (e) {
-            this.logActivity('Failed to update member', 'error')
-            throw e 
+      try {
+        const res = await $fetch(`/api/team/${updatedMember.id}`, {
+          method: 'PUT',
+          body: updatedMember
+        })
+
+        const index = this.team.findIndex(m => m.id === updatedMember.id)
+        if (index !== -1 && res) {
+          this.team[index] = res
         }
+        this.logActivity(`Member updated: ${updatedMember.name}`, 'info')
+      } catch (e) {
+        this.logActivity('Failed to update member', 'error')
+        throw e
+      }
     },
 
-    async removeTeamMember(id: number) { 
+    async removeTeamMember(id: number) {
       const member = this.team.find(m => m.id === id)
       try {
         await $fetch(`/api/team/${id}`, { method: 'DELETE' })
-        
+
         this.team = this.team.filter(m => m.id !== id)
         this.logActivity(`Member removed`, 'warning')
         this.createNotification(`Team member removed${member ? `: ${member.name}` : ''}`, 'warning', 'bg-rose-500')
       } catch (e) {
         this.logActivity('Failed to remove member', 'error')
-        throw e 
-      }
-    },
-    
-    async updateSettings(payload: any) {
-      try {
-        const updatedSettings = await $fetch('/api/settings', {
-          method: 'POST',
-          body: payload
-        })
-        if (updatedSettings) {
-             this.userProfile = {
-                name: updatedSettings.name,
-                email: updatedSettings.email,
-                notifications: updatedSettings.notifications ?? true,
-                userRole: updatedSettings.userRole ?? this.userProfile.userRole
-            }
-        }
-        this.logActivity('User profile settings updated', 'info') 
-      } catch (e) {
-        this.logActivity('Failed to update settings', 'error')
         throw e
       }
     },
