@@ -2,6 +2,7 @@ import type { Config } from 'tailwindcss'
 
 export default <Config>{
   content: [],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
