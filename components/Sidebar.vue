@@ -2,14 +2,15 @@
   <aside class="h-full flex flex-col bg-slate-900/50 backdrop-blur-xl border-r border-white/5">
     
     <div class="h-16 flex items-center px-6 border-b border-white/5">
-      <NuxtLink to="/">
+      <NuxtLink to="/admin">
         <UiLogo />
       </NuxtLink>
     </div>
 
-    <nav class="flex-1 px-4 py-6 space-y-1">
+    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+      <p class="px-4 text-[10px] uppercase tracking-wider text-slate-500 mb-2">Main</p>
       <NuxtLink 
-        v-for="link in links" 
+        v-for="link in mainLinks" 
         :key="link.path" 
         :to="link.path"
         class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
@@ -21,6 +22,33 @@
         <component :is="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110" />
         <span class="font-medium text-sm">{{ link.name }}</span>
       </NuxtLink>
+
+      <p class="px-4 text-[10px] uppercase tracking-wider text-slate-500 mt-6 mb-2">Content</p>
+      <NuxtLink 
+        v-for="link in cmsLinks" 
+        :key="link.path" 
+        :to="link.path"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
+        :class="route.path === link.path ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-white hover:bg-white/5'"
+        @click="$emit('close-mobile')"
+      >
+        <div v-if="route.path === link.path" class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-r-full"></div>
+        
+        <component :is="link.icon" class="w-5 h-5 transition-transform group-hover:scale-110" />
+        <span class="font-medium text-sm">{{ link.name }}</span>
+        <span v-if="link.badge" class="ml-auto px-2 py-0.5 bg-rose-500 text-white text-[10px] font-bold rounded-full">
+          {{ link.badge }}
+        </span>
+      </NuxtLink>
+
+      <a 
+        href="/" 
+        target="_blank"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400 hover:text-white hover:bg-white/5 mt-6"
+      >
+        <ExternalLink class="w-5 h-5" />
+        <span class="font-medium text-sm">View Website</span>
+      </a>
     </nav>
 
     <div class="p-4 border-t border-white/5">
@@ -68,7 +96,7 @@
 </template>
 
 <script setup>
-import { Home, PieChart, Settings, Users, LogOut } from 'lucide-vue-next'
+import { Home, PieChart, Settings, Users, LogOut, FileText, Calendar, Mail, Briefcase, ExternalLink } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
 import { usePermissions } from '~/composables/usePermissions'
 
@@ -86,13 +114,20 @@ const handleLogout = () => {
 const confirmLogout = () => {
   showLogoutConfirm.value = false
   store.logout()
-  router.push('/login')
+  router.push('/admin/login')
 }
 
-const links = [
-  { name: 'Dashboard', path: '/', icon: Home },
-  { name: 'Analytics', path: '/analytics', icon: PieChart },
-  { name: 'Team', path: '/team', icon: Users },
-  { name: 'Settings', path: '/settings', icon: Settings },
+const mainLinks = [
+  { name: 'Dashboard', path: '/admin', icon: Home },
+  { name: 'Analytics', path: '/admin/analytics', icon: PieChart },
+  { name: 'Team', path: '/admin/team', icon: Users },
+  { name: 'Settings', path: '/admin/settings', icon: Settings },
+]
+
+const cmsLinks = [
+  { name: 'Blog Posts', path: '/admin/blogs', icon: FileText },
+  { name: 'Events', path: '/admin/events', icon: Calendar },
+  { name: 'Inquiries', path: '/admin/contacts', icon: Mail },
+  { name: 'Projects', path: '/admin/projects', icon: Briefcase },
 ]
 </script>

@@ -7,7 +7,7 @@
         <div class="p-2 rounded-lg bg-white/5 text-indigo-400">
           <component :is="icon" class="w-6 h-6" />
         </div>
-        <span class="text-xs font-medium px-2 py-1 rounded-full" 
+        <span v-if="trend" class="text-xs font-medium px-2 py-1 rounded-full" 
           :class="trend > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'">
           {{ trend > 0 ? '+' : ''}}{{ trend }}%
         </span>

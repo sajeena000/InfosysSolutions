@@ -6,14 +6,16 @@
 
     <div class="hidden md:block relative">
       <div 
-        class="flex items-center gap-2 px-3 py-2 rounded-full bg-slate-950/50 border border-white/10 w-64 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/50 transition-all"
+        class="flex items-center gap-2 px-3 py-2 rounded-full bg-slate-950/50 border border-white/10 w-96 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/50 transition-all"
       >
-        <Search class="w-4 h-4 text-slate-500" />
+        <Search class="w-4 h-4 text-slate-500 shrink-0" />
+        <div class="h-4 w-[1px] bg-white/10 mx-1 shrink-0"></div>
+        <SearchFilter v-model="searchFilter" class="shrink-0" />
         <input 
           v-model="store.searchQuery" 
           type="text" 
-          placeholder="Search everything..." 
-          class="bg-transparent border-none outline-none text-sm text-white placeholder-slate-600 w-full"
+          placeholder="Search..." 
+          class="bg-transparent border-none outline-none text-sm text-white placeholder-slate-600 w-full ml-2"
           @focus="showSearchResults = true"
           @blur="hideSearchResults"
         />
@@ -27,64 +29,40 @@
       </div>
 
       <div 
-        v-if="showSearchResults && store.searchQuery && hasResults"
-        class="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+        v-if="(showSearchResults && store.searchQuery && isSearching) || (showSearchResults && store.searchQuery && hasResults)"
+        class="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50 max-h-96 overflow-y-auto custom-scrollbar"
       >
-        <div v-if="filteredTeam.length > 0">
-          <div class="px-3 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-white/5">
-            Team Members
-          </div>
-          <div 
-            v-for="member in filteredTeam.slice(0, 3)" 
-            :key="'team-' + member.id"
-            @mousedown.prevent="navigateTo('/team', member.name)"
-            class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors flex items-center gap-3"
-          >
-            <img 
-              :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`" 
-              class="w-8 h-8 rounded-full bg-slate-800"
-              alt=""
-            />
-            <div>
-              <p class="text-sm text-white">{{ member.name }}</p>
-              <p class="text-xs text-slate-500">{{ member.role }}</p>
-            </div>
-          </div>
+        <div v-if="isSearching" class="p-4 text-center text-slate-500 text-sm">
+          Searching...
         </div>
 
-        <div v-if="filteredActivities.length > 0">
-          <div class="px-3 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-white/5 border-t">
-            Recent Activity
-          </div>
-          <div 
-            v-for="activity in filteredActivities.slice(0, 3)" 
-            :key="'activity-' + activity.id"
-            @mousedown.prevent="navigateTo('/')"
-            class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors flex items-center gap-3"
-          >
-            <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-            <div>
-              <p class="text-sm text-slate-200">{{ activity.text }}</p>
-              <p class="text-xs text-slate-500">{{ activity.time }}</p>
+        <template v-else>
+          <div v-for="(items, type) in groupedResults" :key="type">
+            <div class="px-3 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-white/5 bg-slate-950/30 sticky top-0 backdrop-blur-sm">
+              {{ type }}
+            </div>
+            <div 
+              v-for="item in items" 
+              :key="item.id"
+              @mousedown.prevent="navigateTo(item.url)"
+              class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors flex items-center gap-3"
+            >
+              <div 
+                class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-indigo-400"
+              >
+                <component :is="getIconComponent(item.icon)" class="w-4 h-4" />
+              </div>
+              <div>
+                <p class="text-sm text-white">{{ item.title }}</p>
+                <p class="text-xs text-slate-500">{{ item.subtitle }}</p>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div v-if="matchesSettings">
-          <div class="px-3 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-white/5 border-t">
-            Settings
+          
+          <div v-if="!hasResults && !isSearching" class="p-4 text-center text-slate-500 text-sm">
+            No results found
           </div>
-          <div 
-            @mousedown.prevent="navigateTo('/settings')"
-            class="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors flex items-center gap-3"
-          >
-            <Settings class="w-4 h-4 text-slate-400" />
-            <div>
-              <p class="text-sm text-white">User Settings</p>
-              <p class="text-xs text-slate-500">{{ store.userProfile.name }} - {{ store.userProfile.email }}</p>
-            </div>
-          </div>
-        </div>
+        </template>
       </div>
     </div>
 
@@ -150,59 +128,87 @@
 </template>
 
 <script setup>
-import { Menu, Search, Bell, X, Settings } from 'lucide-vue-next'
+import { Menu, Search, Bell, X, Settings, User, Briefcase, FileText, Calendar, MessageSquare, Building, BarChart } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
+import { watchDebounced } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
 const store = useAppStore()
 const showNotifications = ref(false)
 const showSearchResults = ref(false)
+const searchResults = ref([])
+const isSearching = ref(false)
+const searchFilter = ref('all')
 
-const filteredTeam = computed(() => {
-  if (!store.searchQuery) return []
-  const query = store.searchQuery.toLowerCase()
-  return store.team.filter(member => 
-    member.name.toLowerCase().includes(query) || 
-    member.role.toLowerCase().includes(query) ||
-    member.email.toLowerCase().includes(query)
-  )
+const config = useRuntimeConfig()
+
+watch(() => route.path, () => {
+  showSearchResults.value = false
 })
 
-const filteredActivities = computed(() => {
-  if (!store.searchQuery) return []
-  const query = store.searchQuery.toLowerCase()
-  return store.activities.filter(activity => 
-    activity.text.toLowerCase().includes(query)
-  )
-})
+const performSearch = async () => {
+  console.log('Performing search for:', store.searchQuery)
+  if (!store.searchQuery || store.searchQuery.length < 2) {
+    searchResults.value = []
+    return
+  }
 
-const matchesSettings = computed(() => {
-  if (!store.searchQuery) return false
-  const query = store.searchQuery.toLowerCase()
-  return (
-    'settings'.includes(query) ||
-    store.userProfile.name.toLowerCase().includes(query) ||
-    store.userProfile.email.toLowerCase().includes(query)
-  )
+  isSearching.value = true
+  try {
+    const apiUrl = `${config.app.baseURL}api/search`.replace('//', '/') 
+    console.log('Fetching from:', apiUrl)
+    
+    const results = await $fetch(apiUrl, {
+      params: {
+        q: store.searchQuery,
+        type: searchFilter.value
+      }
+    })
+    console.log('Search results:', results)
+    searchResults.value = results
+  } catch (e) {
+    console.error('Search failed', e)
+    searchResults.value = []
+  } finally {
+    isSearching.value = false
+  }
+}
+
+watchDebounced(
+  [() => store.searchQuery, searchFilter],
+  () => {
+    performSearch()
+  },
+  { debounce: 300, maxWait: 1000 }
+)
+
+const groupedResults = computed(() => {
+  if (!searchResults.value.length) return {}
+  
+  return searchResults.value.reduce((acc, item) => {
+    if (!acc[item.type]) acc[item.type] = []
+    acc[item.type].push(item)
+    return acc
+  }, {})
 })
 
 const hasResults = computed(() => {
-  return filteredTeam.value.length > 0 || filteredActivities.value.length > 0 || matchesSettings.value
+  return searchResults.value.length > 0
 })
+
+const getIconComponent = (iconName) => {
+  const icons = { User, Briefcase, FileText, Calendar, MessageSquare, Building, BarChart, Settings }
+  return icons[iconName] || Search
+}
 
 const hideSearchResults = () => {
   setTimeout(() => {
     showSearchResults.value = false
-  }, 150)
+  }, 200)
 }
 
-const navigateTo = (path, searchTerm = null) => {
-  if (searchTerm && path === '/team') {
-    store.searchQuery = searchTerm
-  } else {
-    store.searchQuery = ''
-  }
+const navigateTo = (path) => {
   router.push(path)
   showSearchResults.value = false
 }
