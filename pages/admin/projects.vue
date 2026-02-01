@@ -6,12 +6,37 @@
         <p class="text-slate-400">Track and manage client projects.</p>
       </div>
       
-      <button 
-        @click="openModal()"
-        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
-      >
-        + New Project
-      </button>
+      <div class="flex items-center gap-4 flex-wrap">
+        <select 
+          v-model="filterStatus"
+          class="bg-slate-900/50 border border-white/5 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/50"
+        >
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+
+        <select 
+          v-model="filterType"
+          class="bg-slate-900/50 border border-white/5 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/50"
+        >
+          <option value="all">All Types</option>
+          <option value="Web Development">Web</option>
+          <option value="Mobile App">Mobile</option>
+          <option value="AI/ML">AI/ML</option>
+          <option value="DevOps">DevOps</option>
+          <option value="Consulting">Consulting</option>
+        </select>
+
+        <button 
+          @click="openModal()"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
+        >
+          + New Project
+        </button>
+      </div>
     </div>
 
     <!-- Stats -->
@@ -366,6 +391,9 @@
 
 <script setup>
 import { Briefcase, Pencil, Trash2, X, ChevronDown } from 'lucide-vue-next'
+import { useAppStore } from '~/stores/appStore'
+
+const store = useAppStore()
 
 // Pricing package values
 const PRICING_VALUES = {
@@ -423,6 +451,8 @@ const fetchClients = async () => {
 const currentPage = ref(1)
 const totalItems = ref(0)
 const itemsPerPage = ref(10)
+const filterStatus = ref('all')
+const filterType = ref('all')
 const projectsStats = ref({
   totalValue: 0,
   active: 0,
@@ -436,7 +466,10 @@ const fetchProjects = async () => {
     const response = await $fetch('/api/projects', {
       params: {
         page: currentPage.value,
-        limit: itemsPerPage.value
+        limit: itemsPerPage.value,
+        status: filterStatus.value,
+        type: filterType.value,
+        search: store.searchQuery
       }
     })
     projects.value = response.data
@@ -451,8 +484,12 @@ const fetchProjects = async () => {
   }
 }
 
-watch(currentPage, () => {
-    fetchProjects()
+watch([currentPage, filterStatus, filterType, () => store.searchQuery], () => {
+  fetchProjects()
+})
+
+watch([filterStatus, filterType, () => store.searchQuery], () => {
+  currentPage.value = 1
 })
 
 const onPricingPackageChange = () => {

@@ -14,7 +14,7 @@
         <input 
           v-model="store.searchQuery" 
           type="text" 
-          placeholder="Search..." 
+          :placeholder="isOnListPage ? 'Filter this page...' : 'Search...'" 
           class="bg-transparent border-none outline-none text-sm text-white placeholder-slate-600 w-full ml-2"
           @focus="showSearchResults = true"
           @blur="hideSearchResults"
@@ -28,8 +28,9 @@
         </button>
       </div>
 
+      <!-- Only show global search dropdown when NOT on a list page -->
       <div 
-        v-if="(showSearchResults && store.searchQuery && isSearching) || (showSearchResults && store.searchQuery && hasResults)"
+        v-if="!isOnListPage && ((showSearchResults && store.searchQuery && isSearching) || (showSearchResults && store.searchQuery && hasResults))"
         class="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50 max-h-96 overflow-y-auto custom-scrollbar"
       >
         <div v-if="isSearching" class="p-4 text-center text-slate-500 text-sm">
@@ -142,6 +143,10 @@ const isSearching = ref(false)
 const searchFilter = ref('all')
 
 const config = useRuntimeConfig()
+
+// List of admin "list pages" where search should filter the page content directly
+const listPages = ['/admin/team', '/admin/blogs', '/admin/events', '/admin/contacts', '/admin/projects']
+const isOnListPage = computed(() => listPages.includes(route.path))
 
 watch(() => route.path, () => {
   showSearchResults.value = false

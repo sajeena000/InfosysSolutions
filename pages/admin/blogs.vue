@@ -6,12 +6,26 @@
         <p class="text-slate-400">Manage blog content for the public website.</p>
       </div>
       
-      <button 
-        @click="openModal()"
-        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
-      >
-        + New Post
-      </button>
+      <div class="flex items-center gap-4">
+        <div class="flex p-1 bg-slate-900/50 border border-white/5 rounded-lg backdrop-blur-sm">
+          <button 
+            v-for="status in ['all', 'published', 'draft']" 
+            :key="status"
+            @click="filterStatus = status"
+            class="px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-all"
+            :class="filterStatus === status ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'"
+          >
+            {{ status }}
+          </button>
+        </div>
+
+        <button 
+          @click="openModal()"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
+        >
+          + New Post
+        </button>
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-20">
@@ -216,6 +230,9 @@
 
 <script setup>
 import { FileText, Pencil, Trash2, X } from 'lucide-vue-next'
+import { useAppStore } from '~/stores/appStore'
+
+const store = useAppStore()
 
 const posts = ref([])
 const loading = ref(true)
@@ -232,6 +249,7 @@ const toastType = ref('success')
 const currentPage = ref(1)
 const totalItems = ref(0)
 const itemsPerPage = ref(10)
+const filterStatus = ref('all')
 
 const form = ref({
   id: null,
@@ -253,7 +271,9 @@ const fetchPosts = async () => {
     const response = await $fetch('/api/blogs', {
       params: {
         page: currentPage.value,
-        limit: itemsPerPage.value
+        limit: itemsPerPage.value,
+        status: filterStatus.value,
+        search: store.searchQuery
       }
     })
     posts.value = response.data
@@ -265,8 +285,12 @@ const fetchPosts = async () => {
   }
 }
 
-watch(currentPage, () => {
+watch([currentPage, filterStatus, () => store.searchQuery], () => {
   fetchPosts()
+})
+
+watch([filterStatus, () => store.searchQuery], () => {
+  currentPage.value = 1
 })
 
 const openModal = (post = null) => {

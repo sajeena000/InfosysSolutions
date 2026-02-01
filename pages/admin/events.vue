@@ -6,12 +6,26 @@
         <p class="text-slate-400">Manage company events and conferences.</p>
       </div>
       
-      <button 
-        @click="openModal()"
-        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
-      >
-        + New Event
-      </button>
+      <div class="flex items-center gap-4">
+        <div class="flex p-1 bg-slate-900/50 border border-white/5 rounded-lg backdrop-blur-sm">
+          <button 
+            v-for="status in ['all', 'upcoming', 'past']" 
+            :key="status"
+            @click="filterStatus = status"
+            class="px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-all"
+            :class="filterStatus === status ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'"
+          >
+            {{ status }}
+          </button>
+        </div>
+
+        <button 
+          @click="openModal()"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-indigo-500/20 transition-all"
+        >
+          + New Event
+        </button>
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-20">
@@ -195,6 +209,9 @@
 
 <script setup>
 import { Calendar, MapPin, Pencil, Trash2, X } from 'lucide-vue-next'
+import { useAppStore } from '~/stores/appStore'
+
+const store = useAppStore()
 
 const events = ref([])
 const loading = ref(true)
@@ -224,6 +241,7 @@ onMounted(() => {
 const currentPage = ref(1)
 const totalItems = ref(0)
 const itemsPerPage = ref(9)
+const filterStatus = ref('all')
 
 const fetchEvents = async () => {
   loading.value = true
@@ -231,7 +249,9 @@ const fetchEvents = async () => {
     const response = await $fetch('/api/events', {
       params: {
         page: currentPage.value,
-        limit: itemsPerPage.value
+        limit: itemsPerPage.value,
+        status: filterStatus.value,
+        search: store.searchQuery
       }
     })
     events.value = response.data
@@ -243,8 +263,12 @@ const fetchEvents = async () => {
   }
 }
 
-watch(currentPage, () => {
+watch([currentPage, filterStatus, () => store.searchQuery], () => {
   fetchEvents()
+})
+
+watch([filterStatus, () => store.searchQuery], () => {
+  currentPage.value = 1
 })
 
 const openModal = (event = null) => {

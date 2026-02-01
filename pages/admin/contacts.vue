@@ -120,6 +120,9 @@
 
 <script setup>
 import { Mail, Phone, Tag, Trash2 } from 'lucide-vue-next'
+import { useAppStore } from '~/stores/appStore'
+
+const store = useAppStore()
 
 const contacts = ref([])
 const loading = ref(true)
@@ -146,7 +149,8 @@ const fetchContacts = async () => {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,
-        status: filterStatus.value
+        status: filterStatus.value,
+        search: store.searchQuery
       }
     })
     contacts.value = response.data
@@ -158,14 +162,11 @@ const fetchContacts = async () => {
   }
 }
 
-watch([currentPage, filterStatus], () => {
-  if (filterStatus.value !== 'all' && currentPage.value !== 1) {
-     // reset or stay? usually reset to 1 if filter changes
-  }
+watch([currentPage, filterStatus, () => store.searchQuery], () => {
   fetchContacts()
 })
 
-watch(filterStatus, () => {
+watch([filterStatus, () => store.searchQuery], () => {
   currentPage.value = 1
 })
 

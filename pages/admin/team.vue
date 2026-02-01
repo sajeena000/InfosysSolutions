@@ -6,7 +6,7 @@
         <p class="text-slate-400">Manage your squad permissions and public profiles.</p>
       </div>
       
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 flex-wrap">
         <div class="hidden sm:flex p-1 bg-slate-900/50 border border-white/5 rounded-lg backdrop-blur-sm">
           <button 
             v-for="status in ['all', 'online', 'offline']" 
@@ -18,6 +18,31 @@
             {{ status }}
           </button>
         </div>
+
+        <select 
+          v-model="filterRole"
+          class="bg-slate-900/50 border border-white/5 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/50"
+        >
+          <option value="all">All Roles</option>
+          <option value="Frontend Developer">Frontend</option>
+          <option value="Backend Developer">Backend</option>
+          <option value="Product Designer">Designer</option>
+          <option value="DevOps Engineer">DevOps</option>
+          <option value="Project Manager">Manager</option>
+          <option value="Intern">Intern</option>
+        </select>
+
+        <button 
+          @click="filterPublic = filterPublic === 'all' ? 'true' : (filterPublic === 'true' ? 'false' : 'all')"
+          class="px-3 py-1.5 text-xs font-medium rounded-lg border transition-all"
+          :class="{
+            'bg-emerald-500/20 border-emerald-500/30 text-emerald-400': filterPublic === 'true',
+            'bg-rose-500/20 border-rose-500/30 text-rose-400': filterPublic === 'false',
+            'bg-slate-900/50 border-white/5 text-slate-400': filterPublic === 'all'
+          }"
+        >
+          {{ filterPublic === 'true' ? 'Public Only' : (filterPublic === 'false' ? 'Private Only' : 'All Visibility') }}
+        </button>
 
         <button 
           v-if="canAddMembers"
@@ -285,7 +310,9 @@ const { canAddMembers, canEditMembers, canRemoveMembers } = usePermissions()
 const showModal = ref(false)
 const toastRef = ref(null)
 
-const filterStatus = ref('all') 
+const filterStatus = ref('all')
+const filterRole = ref('all')
+const filterPublic = ref('all')
 
 const isEditing = ref(false)
 const toastTitle = ref('')
@@ -318,6 +345,8 @@ const fetchTeam = async () => {
         page: currentPage.value,
         limit: itemsPerPage.value,
         status: filterStatus.value,
+        role: filterRole.value,
+        public: filterPublic.value,
         search: store.searchQuery
       }
     })
@@ -330,16 +359,12 @@ const fetchTeam = async () => {
   }
 }
 
-watch([currentPage, filterStatus, () => store.searchQuery], () => {
-  if (currentPage.value !== 1 && (filterStatus.value !== 'all' || store.searchQuery)) {
-     // Reset key/pagination if filters change is usually good UX, but here I'll just refetch.
-     // If search changes, better go to page 1.
-  }
+watch([currentPage, filterStatus, filterRole, filterPublic, () => store.searchQuery], () => {
   fetchTeam()
 })
 
 // Watch filters to reset page to 1
-watch([filterStatus, () => store.searchQuery], () => {
+watch([filterStatus, filterRole, filterPublic, () => store.searchQuery], () => {
   currentPage.value = 1
 })
 
