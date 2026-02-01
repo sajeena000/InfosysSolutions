@@ -14,7 +14,7 @@
       
       <StatCard 
         title="Team Members" 
-        :value="store.totalTeamCount" 
+        :value="stats.totalTeamMembers" 
         :icon="Users" 
       />
       

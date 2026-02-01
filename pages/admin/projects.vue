@@ -18,19 +18,19 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="p-4 rounded-xl bg-slate-900/40 border border-white/5">
         <p class="text-slate-500 text-xs uppercase tracking-wider">Total Value</p>
-        <p class="text-2xl font-display font-bold text-white">{{ formatCurrency(totalValue) }}</p>
+        <p class="text-2xl font-display font-bold text-white">{{ formatCurrency(projectsStats.totalValue) }}</p>
       </div>
       <div class="p-4 rounded-xl bg-slate-900/40 border border-white/5">
         <p class="text-slate-500 text-xs uppercase tracking-wider">Active</p>
-        <p class="text-2xl font-display font-bold text-emerald-400">{{ statusCounts.active }}</p>
+        <p class="text-2xl font-display font-bold text-emerald-400">{{ projectsStats.active }}</p>
       </div>
       <div class="p-4 rounded-xl bg-slate-900/40 border border-white/5">
         <p class="text-slate-500 text-xs uppercase tracking-wider">Pending</p>
-        <p class="text-2xl font-display font-bold text-amber-400">{{ statusCounts.pending }}</p>
+        <p class="text-2xl font-display font-bold text-amber-400">{{ projectsStats.pending }}</p>
       </div>
       <div class="p-4 rounded-xl bg-slate-900/40 border border-white/5">
         <p class="text-slate-500 text-xs uppercase tracking-wider">Completed</p>
-        <p class="text-2xl font-display font-bold text-indigo-400">{{ statusCounts.completed }}</p>
+        <p class="text-2xl font-display font-bold text-indigo-400">{{ projectsStats.completed }}</p>
       </div>
     </div>
 
@@ -138,6 +138,13 @@
         </tbody>
       </table>
     </div>
+
+    <UiPagination 
+      v-if="totalItems > 0"
+      v-model:current-page="currentPage"
+      :total="totalItems"
+      :items-per-page="itemsPerPage"
+    />
 
     <Teleport to="body">
       <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -405,16 +412,6 @@ onMounted(() => {
   fetchClients()
 })
 
-const fetchProjects = async () => {
-  try {
-    projects.value = await $fetch('/api/projects')
-  } catch (error) {
-    console.error('Failed to fetch projects:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
 const fetchClients = async () => {
   try {
     clientsList.value = await $fetch('/api/clients')
@@ -423,16 +420,39 @@ const fetchClients = async () => {
   }
 }
 
-const totalValue = computed(() => {
-  return projects.value.reduce((sum, p) => sum + (p.value || 0), 0)
+const currentPage = ref(1)
+const totalItems = ref(0)
+const itemsPerPage = ref(10)
+const projectsStats = ref({
+  totalValue: 0,
+  active: 0,
+  pending: 0,
+  completed: 0
 })
 
-const statusCounts = computed(() => {
-  const counts = { active: 0, pending: 0, completed: 0 }
-  projects.value.forEach(p => {
-    if (p.status in counts) counts[p.status]++
-  })
-  return counts
+const fetchProjects = async () => {
+  loading.value = true
+  try {
+    const response = await $fetch('/api/projects', {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage.value
+      }
+    })
+    projects.value = response.data
+    totalItems.value = response.meta.total
+    if (response.meta.stats) {
+      projectsStats.value = response.meta.stats
+    }
+  } catch (error) {
+    console.error('Failed to fetch projects:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+watch(currentPage, () => {
+    fetchProjects()
 })
 
 const onPricingPackageChange = () => {

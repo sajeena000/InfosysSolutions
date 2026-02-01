@@ -83,7 +83,15 @@
           </span>
         </div>
       </div>
+
     </div>
+    
+    <UiPagination 
+      v-if="totalItems > 0"
+      v-model:current-page="currentPage"
+      :total="totalItems"
+      :items-per-page="itemsPerPage"
+    />
 
     <Teleport to="body">
       <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -213,15 +221,31 @@ onMounted(() => {
   fetchEvents()
 })
 
+const currentPage = ref(1)
+const totalItems = ref(0)
+const itemsPerPage = ref(9)
+
 const fetchEvents = async () => {
+  loading.value = true
   try {
-    events.value = await $fetch('/api/events')
+    const response = await $fetch('/api/events', {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage.value
+      }
+    })
+    events.value = response.data
+    totalItems.value = response.meta.total
   } catch (error) {
     console.error('Failed to fetch events:', error)
   } finally {
     loading.value = false
   }
 }
+
+watch(currentPage, () => {
+  fetchEvents()
+})
 
 const openModal = (event = null) => {
   if (event) {

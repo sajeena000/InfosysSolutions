@@ -43,7 +43,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
-        v-for="member in filteredTeam" 
+        v-for="member in members" 
         :key="member.id" 
         class="group p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-indigo-500/30 transition-all hover:bg-slate-800/50 relative"
       >
@@ -115,7 +115,14 @@
       </div>
     </div>
 
-    <div v-if="filteredTeam.length === 0" class="text-center py-20 border border-dashed border-white/10 rounded-2xl">
+    <UiPagination 
+      v-if="totalItems > 0"
+      v-model:current-page="currentPage"
+      :total="totalItems"
+      :items-per-page="itemsPerPage"
+    />
+
+    <div v-if="members.length === 0" class="text-center py-20 border border-dashed border-white/10 rounded-2xl">
       <p class="text-slate-500">No team members found.</p>
       <button @click="store.searchQuery = ''; filterStatus = 'all'" class="mt-2 text-indigo-400 hover:text-indigo-300 text-sm">Clear Filters</button>
     </div>
@@ -297,25 +304,47 @@ const form = ref({
   isPublic: false
 })
 
-const filteredTeam = computed(() => {
-  let result = store.team
+const members = ref([])
+const currentPage = ref(1)
+const totalItems = ref(0)
+const itemsPerPage = ref(9)
+const loading = ref(false)
 
-  if (filterStatus.value === 'online') {
-    result = result.filter(m => m.online)
-  } else if (filterStatus.value === 'offline') {
-    result = result.filter(m => !m.online)
+const fetchTeam = async () => {
+  loading.value = true
+  try {
+    const response = await $fetch('/api/team', {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage.value,
+        status: filterStatus.value,
+        search: store.searchQuery
+      }
+    })
+    members.value = response.data
+    totalItems.value = response.meta.total
+  } catch (error) {
+    console.error('Failed to fetch team:', error)
+  } finally {
+    loading.value = false
   }
+}
 
-  if (store.searchQuery) {
-    const query = store.searchQuery.toLowerCase()
-    result = result.filter(member => 
-      member.name.toLowerCase().includes(query) || 
-      member.role.toLowerCase().includes(query) ||
-      member.email.toLowerCase().includes(query)
-    )
+watch([currentPage, filterStatus, () => store.searchQuery], () => {
+  if (currentPage.value !== 1 && (filterStatus.value !== 'all' || store.searchQuery)) {
+     // Reset key/pagination if filters change is usually good UX, but here I'll just refetch.
+     // If search changes, better go to page 1.
   }
-  
-  return result
+  fetchTeam()
+})
+
+// Watch filters to reset page to 1
+watch([filterStatus, () => store.searchQuery], () => {
+  currentPage.value = 1
+})
+
+onMounted(() => {
+  fetchTeam()
 })
 
 const openAddModal = () => {
@@ -357,13 +386,15 @@ const handleSubmit = async () => {
       toastTitle.value = "Updated"
       toastMessage.value = "Team member details updated."
       toastType.value = "success"
+      fetchTeam()
     } else {
-      await store.addTeamMember({ ...form.value })
+       await store.addTeamMember({ ...form.value })
       toastTitle.value = "Success"
       toastMessage.value = "Team member added to database."
       toastType.value = "success"
     }
     showModal.value = false 
+    fetchTeam() 
   } catch (error) {
     toastTitle.value = "Error"
     toastMessage.value = "Failed to save changes."
@@ -390,6 +421,7 @@ const handleDelete = async () => {
     toastTitle.value = "Deleted"
     toastMessage.value = "Member removed from database."
     toastType.value = "success"
+    fetchTeam()
   } catch (e) {
     toastTitle.value = "Error"
     toastMessage.value = "Could not delete member."

@@ -26,14 +26,14 @@
       <p class="text-slate-500 mt-4">Loading inquiries...</p>
     </div>
 
-    <div v-else-if="filteredContacts.length === 0" class="text-center py-20 border border-dashed border-white/10 rounded-2xl">
+    <div v-else-if="contacts.length === 0" class="text-center py-20 border border-dashed border-white/10 rounded-2xl">
       <Mail class="w-12 h-12 text-slate-500 mx-auto mb-4" />
       <p class="text-slate-400">No {{ filterStatus === 'all' ? '' : filterStatus }} inquiries found</p>
     </div>
 
     <div v-else class="space-y-4">
       <div 
-        v-for="contact in filteredContacts" 
+        v-for="contact in contacts" 
         :key="contact.id"
         class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-indigo-500/30 transition-all"
       >
@@ -96,7 +96,15 @@
           </div>
         </div>
       </div>
+
     </div>
+    
+    <UiPagination 
+      v-if="totalItems > 0"
+      v-model:current-page="currentPage"
+      :total="totalItems"
+      :items-per-page="itemsPerPage"
+    />
 
     <UiConfirmModal 
       v-model="isDeleting"
@@ -127,9 +135,22 @@ onMounted(() => {
   fetchContacts()
 })
 
+const currentPage = ref(1)
+const totalItems = ref(0)
+const itemsPerPage = ref(10)
+
 const fetchContacts = async () => {
+  loading.value = true
   try {
-    contacts.value = await $fetch('/api/contacts')
+    const response = await $fetch('/api/contacts', {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage.value,
+        status: filterStatus.value
+      }
+    })
+    contacts.value = response.data
+    totalItems.value = response.meta.total
   } catch (error) {
     console.error('Failed to fetch contacts:', error)
   } finally {
@@ -137,9 +158,15 @@ const fetchContacts = async () => {
   }
 }
 
-const filteredContacts = computed(() => {
-  if (filterStatus.value === 'all') return contacts.value
-  return contacts.value.filter(c => c.status === filterStatus.value)
+watch([currentPage, filterStatus], () => {
+  if (filterStatus.value !== 'all' && currentPage.value !== 1) {
+     // reset or stay? usually reset to 1 if filter changes
+  }
+  fetchContacts()
+})
+
+watch(filterStatus, () => {
+  currentPage.value = 1
 })
 
 const handleStatusChange = (event, id) => {
