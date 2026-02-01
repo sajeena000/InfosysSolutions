@@ -36,15 +36,50 @@
         </div>
 
         <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950/50">
-          <div class="flex gap-3">
+        <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950/50">
+          <div
+            v-for="(msg, index) in messages"
+            :key="index"
+            :class="msg.role === 'user' ? 'flex-row-reverse' : ''"
+            class="flex gap-3"
+          >
+            <div
+              :class="msg.role === 'user'
+                ? 'bg-indigo-500'
+                : 'bg-gradient-to-br from-indigo-500 to-purple-500'"
+              class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg"
+            >
+              <Bot v-if="msg.role === 'assistant'" class="w-4 h-4 text-white" />
+              <User v-else class="w-4 h-4 text-white" />
+            </div>
+            <div
+              :class="msg.role === 'user'
+                ? 'bg-indigo-500 text-white rounded-tr-none'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-tl-none border border-slate-100 dark:border-slate-700'"
+              class="p-3 rounded-2xl shadow-sm max-w-[85%]"
+            >
+              <p class="text-sm whitespace-pre-wrap">{{ msg.content }}</p>
+            </div>
+          </div>
+
+          <!-- Loading indicator -->
+          <div v-if="isLoading" class="flex gap-3">
             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0 shadow-lg">
               <Bot class="w-4 h-4 text-white" />
             </div>
-            <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 dark:border-slate-700 max-w-[85%]">
-              <p class="text-sm text-slate-600 dark:text-slate-300">
-                Hello! 👋 How can I help you today?
-              </p>
+            <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 dark:border-slate-700">
+              <div class="flex gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay: 0ms"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay: 150ms"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay: 300ms"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error message -->
+          <div v-if="errorMessage" class="flex justify-center">
+            <div class="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg text-xs">
+              {{ errorMessage }}
             </div>
           </div>
         </div>
@@ -56,18 +91,19 @@
               v-model="message"
               type="text"
               placeholder="Type your message..."
-              class="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
+              :disabled="isLoading"
+              class="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm text-slate-900 dark:text-white placeholder:text-slate-400 disabled:opacity-50"
             />
             <button
               type="submit"
-              :disabled="!message.trim()"
+              :disabled="!message.trim() || isLoading"
               class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-indigo-500 text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-600 transition-colors"
             >
               <Send class="w-4 h-4" />
             </button>
           </form>
           <div class="text-center mt-2">
-            <p class="text-[10px] text-slate-400">Powered by AI</p>
+            <p class="text-[10px] text-slate-400">Powered by Gemma 3</p>
           </div>
         </div>
       </div>
@@ -97,13 +133,66 @@
 </template>
 
 <script setup>
-import { MessageCircle, X, Send, Bot } from 'lucide-vue-next'
+import { MessageCircle, X, Send, Bot, User } from 'lucide-vue-next'
 
 const isOpen = ref(false)
 const message = ref('')
+const isLoading = ref(false)
+const errorMessage = ref('')
+const messagesContainer = ref(null)
 
-const sendMessage = () => {
-  if (!message.value.trim()) return
+const messages = ref([
+  {
+    role: 'assistant',
+    content: 'Hello! 👋 I\'m the Infosys Solutions assistant. How can I help you today?'
+  }
+])
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  })
+}
+
+const sendMessage = async () => {
+  if (!message.value.trim() || isLoading.value) return
+
+  const userMessage = message.value.trim()
   message.value = ''
+  errorMessage.value = ''
+
+  // Add user message
+  messages.value.push({
+    role: 'user',
+    content: userMessage
+  })
+  scrollToBottom()
+
+  isLoading.value = true
+
+  try {
+    const response = await $fetch('/api/chat', {
+      method: 'POST',
+      body: { message: userMessage }
+    })
+
+    if (response.success) {
+      messages.value.push({
+        role: 'assistant',
+        content: response.response
+      })
+    } else {
+      errorMessage.value = 'Failed to get response. Please try again.'
+    }
+  } catch (error) {
+    console.error('Chat error:', error)
+    errorMessage.value = error?.data?.message || 'Something went wrong. Please try again.'
+  } finally {
+    isLoading.value = false
+    scrollToBottom()
+  }
 }
 </script>
+
