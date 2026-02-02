@@ -246,7 +246,7 @@ const filterStatus = ref('all')
 const fetchEvents = async () => {
   loading.value = true
   try {
-    const response = await $fetch('/api/events', {
+    const response = await $fetch('/api/admin/events', {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,
@@ -300,14 +300,14 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     if (isEditing.value) {
-      await $fetch(`/api/events/${form.value.id}`, {
+      await $fetch(`/api/admin/events/${form.value.id}`, {
         method: 'PUT',
         body: form.value
       })
       toastTitle.value = 'Updated'
       toastMessage.value = 'Event updated successfully.'
     } else {
-      await $fetch('/api/events', {
+      await $fetch('/api/admin/events', {
         method: 'POST',
         body: form.value
       })
@@ -337,7 +337,7 @@ const handleDelete = async () => {
   if (!eventToDelete.value) return
   
   try {
-    await $fetch(`/api/events/${eventToDelete.value.id}`, { method: 'DELETE' })
+    await $fetch(`/api/admin/events/${eventToDelete.value.id}`, { method: 'DELETE' })
     toastTitle.value = 'Deleted'
     toastMessage.value = 'Event deleted.'
     toastType.value = 'success'

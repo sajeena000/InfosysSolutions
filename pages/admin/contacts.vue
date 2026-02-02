@@ -145,7 +145,7 @@ const itemsPerPage = ref(10)
 const fetchContacts = async () => {
   loading.value = true
   try {
-    const response = await $fetch('/api/contacts', {
+    const response = await $fetch('/api/admin/contacts', {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,
@@ -177,7 +177,7 @@ const handleStatusChange = (event, id) => {
 
 const updateStatus = async (id, status) => {
   try {
-    await $fetch(`/api/contacts/${id}`, {
+    await $fetch(`/api/admin/contacts/${id}`, {
       method: 'PUT',
       body: { status }
     })
@@ -206,7 +206,7 @@ const handleDelete = async () => {
   if (!contactToDelete.value) return
   
   try {
-    await $fetch(`/api/contacts/${contactToDelete.value.id}`, { method: 'DELETE' })
+    await $fetch(`/api/admin/contacts/${contactToDelete.value.id}`, { method: 'DELETE' })
     toastTitle.value = 'Deleted'
     toastMessage.value = 'Inquiry deleted.'
     toastType.value = 'success'

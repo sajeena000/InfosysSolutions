@@ -7,7 +7,7 @@
     </main>
     
     <PublicFooter />
-    <Chatbot />
+    <PublicChatbot />
 
     <Transition
       enter-active-class="transition duration-300 ease-out"

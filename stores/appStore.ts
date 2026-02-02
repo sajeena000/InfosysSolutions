@@ -65,7 +65,7 @@ export const useAppStore = defineStore('app', {
   actions: {
     async logActivity(text: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
       try {
-        const newActivity = await $fetch('/api/activities', {
+        const newActivity = await $fetch('/api/admin/activities', {
           method: 'POST',
           body: { text, type }
         })
@@ -86,7 +86,7 @@ export const useAppStore = defineStore('app', {
       // Try to get authenticated user info
       if (this.isAuthenticated) {
         try {
-          const me = await $fetch('/api/auth/me')
+          const me = await $fetch('/api/admin/auth/me')
           this.userProfile = {
             id: me.id,
             name: me.name,
@@ -103,9 +103,9 @@ export const useAppStore = defineStore('app', {
 
       try {
         const [teamData, activityData, notificationsData] = await Promise.all([
-          $fetch('/api/team'),
-          $fetch('/api/activities'),
-          $fetch('/api/notifications')
+          $fetch('/api/admin/team'),
+          $fetch('/api/admin/activities'),
+          $fetch('/api/admin/notifications')
         ])
         // Handle paginated response for team
         this.team = (teamData as any).data ? (teamData as any).data : teamData
@@ -125,7 +125,7 @@ export const useAppStore = defineStore('app', {
 
     async logout() {
       try {
-        await $fetch('/api/auth/logout', { method: 'POST' })
+        await $fetch('/api/admin/auth/logout', { method: 'POST' })
       } catch (e) {
         console.error('Logout API failed', e)
       }
@@ -143,7 +143,7 @@ export const useAppStore = defineStore('app', {
 
     async addTeamMember(member: any) {
       try {
-        const newMember = await $fetch('/api/team', {
+        const newMember = await $fetch('/api/admin/team', {
           method: 'POST',
           body: member
         })
@@ -158,7 +158,7 @@ export const useAppStore = defineStore('app', {
 
     async editTeamMember(updatedMember: any) {
       try {
-        const res = await $fetch(`/api/team/${updatedMember.id}`, {
+        const res = await $fetch(`/api/admin/team/${updatedMember.id}`, {
           method: 'PUT',
           body: updatedMember
         })
@@ -177,7 +177,7 @@ export const useAppStore = defineStore('app', {
     async removeTeamMember(id: number) {
       const member = this.team.find(m => m.id === id)
       try {
-        await $fetch(`/api/team/${id}`, { method: 'DELETE' })
+        await $fetch(`/api/admin/team/${id}`, { method: 'DELETE' })
 
         this.team = this.team.filter(m => m.id !== id)
         this.logActivity(`Member removed`, 'warning')
@@ -190,7 +190,7 @@ export const useAppStore = defineStore('app', {
 
     async createNotification(text: string, type: 'info' | 'success' | 'warning' | 'error' = 'info', color: string = 'bg-indigo-500') {
       try {
-        const newNotification = await $fetch('/api/notifications', {
+        const newNotification = await $fetch('/api/admin/notifications', {
           method: 'POST',
           body: { text, type, color }
         })
@@ -203,7 +203,7 @@ export const useAppStore = defineStore('app', {
 
     async markNotificationAsRead(id: number) {
       try {
-        await $fetch(`/api/notifications/${id}`, { method: 'PATCH' })
+        await $fetch(`/api/admin/notifications/${id}`, { method: 'PATCH' })
         const notif = this.notifications.find(n => n.id === id)
         if (notif) notif.isRead = true
       } catch (e) {
@@ -213,7 +213,7 @@ export const useAppStore = defineStore('app', {
 
     async markAllNotificationsAsRead() {
       try {
-        await $fetch('/api/notifications/read-all', { method: 'POST' })
+        await $fetch('/api/admin/notifications/read-all', { method: 'POST' })
         this.notifications.forEach(n => n.isRead = true)
       } catch (e) {
         console.error('Failed to mark all notifications as read', e)

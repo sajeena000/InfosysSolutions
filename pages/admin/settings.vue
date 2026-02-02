@@ -187,7 +187,7 @@ const toggleRegistration = async () => {
 
 const handleLogout = async () => {
   try {
-    await $fetch('/api/auth/logout', { method: 'POST' })
+    await $fetch('/api/admin/auth/logout', { method: 'POST' })
     store.logout()
     router.push('/admin/login')
   } catch (e) {

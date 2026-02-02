@@ -442,7 +442,7 @@ onMounted(() => {
 
 const fetchClients = async () => {
   try {
-    clientsList.value = await $fetch('/api/clients')
+    clientsList.value = await $fetch('/api/admin/clients')
   } catch (error) {
     console.error('Failed to fetch clients:', error)
   }
@@ -463,7 +463,7 @@ const projectsStats = ref({
 const fetchProjects = async () => {
   loading.value = true
   try {
-    const response = await $fetch('/api/projects', {
+    const response = await $fetch('/api/admin/projects', {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,
@@ -534,14 +534,14 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     if (isEditing.value) {
-      await $fetch(`/api/projects/${form.value.id}`, {
+      await $fetch(`/api/admin/projects/${form.value.id}`, {
         method: 'PUT',
         body: form.value
       })
       toastTitle.value = 'Updated'
       toastMessage.value = 'Project updated successfully.'
     } else {
-      await $fetch('/api/projects', {
+      await $fetch('/api/admin/projects', {
         method: 'POST',
         body: form.value
       })
@@ -565,7 +565,7 @@ const handleSubmit = async () => {
 const handleCreateClient = async () => {
   savingClient.value = true
   try {
-    const created = await $fetch('/api/clients', {
+    const created = await $fetch('/api/admin/clients', {
       method: 'POST',
       body: newClient.value
     })
@@ -602,7 +602,7 @@ const handleDelete = async () => {
   if (!projectToDelete.value) return
   
   try {
-    await $fetch(`/api/projects/${projectToDelete.value.id}`, { method: 'DELETE' })
+    await $fetch(`/api/admin/projects/${projectToDelete.value.id}`, { method: 'DELETE' })
     toastTitle.value = 'Deleted'
     toastMessage.value = 'Project deleted.'
     toastType.value = 'success'

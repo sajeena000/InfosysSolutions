@@ -340,7 +340,7 @@ const loading = ref(false)
 const fetchTeam = async () => {
   loading.value = true
   try {
-    const response = await $fetch('/api/team', {
+    const response = await $fetch('/api/admin/team', {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,

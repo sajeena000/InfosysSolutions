@@ -18,7 +18,7 @@ const password = ref('')
 // Check if registration is enabled
 onMounted(async () => {
   try {
-    const result = await $fetch('/api/auth/check-registration')
+    const result = await $fetch('/api/admin/auth/check-registration')
     registrationEnabled.value = result.registrationEnabled
   } catch (e) {
     registrationEnabled.value = false
@@ -30,7 +30,7 @@ const handleLogin = async () => {
   error.value = ''
   
   try {
-    const result = await $fetch('/api/auth/login', {
+    const result = await $fetch('/api/admin/auth/login', {
       method: 'POST',
       body: {
         email: email.value,

@@ -51,7 +51,7 @@
       </div>
       
       <div class="h-64 w-full">
-        <SimpleChart :data="chartData" />
+        <SharedSimpleChart :data="chartData" />
       </div>
       
       <div class="mt-4 flex justify-between text-xs text-slate-500">
@@ -148,7 +148,7 @@ const strokeColors = ['#6366f1', '#a855f7', '#10b981', '#f59e0b', '#f43f5e', '#0
 
 const fetchData = async () => {
   try {
-    const analyticsData = await $fetch('/api/analytics-stats')
+    const analyticsData = await $fetch('/api/admin/analytics-stats')
     
     metrics.value = {
       pipelineValue: analyticsData.pipelineValue || 0,

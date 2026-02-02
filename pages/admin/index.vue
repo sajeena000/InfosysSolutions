@@ -6,25 +6,25 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard 
+      <AdminStatCard 
         title="Total Revenue" 
         :value="formatCurrency(stats.totalRevenue)" 
         :icon="DollarSign" 
       />
       
-      <StatCard 
+      <AdminStatCard 
         title="Team Members" 
         :value="stats.totalTeamMembers" 
         :icon="Users" 
       />
       
-      <StatCard 
+      <AdminStatCard 
         title="Total Projects" 
         :value="stats.totalProjects" 
         :icon="Briefcase" 
       />
       
-      <StatCard 
+      <AdminStatCard 
         title="Active Customers" 
         :value="stats.activeCustomers" 
         :icon="Building2" 
@@ -40,7 +40,7 @@
         </div>
         
         <div class="h-64 w-full">
-          <SimpleChart :data="chartData" />
+          <SharedSimpleChart :data="chartData" />
         </div>
         
         <!-- Month labels -->
@@ -166,7 +166,7 @@ const stats = ref({
 const fetchData = async () => {
   try {
     // Fetch dashboard stats
-    const dashboardStats = await $fetch('/api/dashboard-stats')
+    const dashboardStats = await $fetch('/api/admin/dashboard-stats')
     stats.value = dashboardStats
   } catch (error) {
     console.error('Failed to fetch dashboard stats:', error)

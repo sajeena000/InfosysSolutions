@@ -1,0 +1,221 @@
+<template>
+  <div class="space-y-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-display font-bold text-white mb-2">Analytics</h1>
+        <p class="text-slate-400">Traffic sources and user engagement.</p>
+      </div>
+      <div class="flex gap-2">
+        <button 
+          @click="downloadCSV"
+          class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg text-sm font-medium border border-white/10 transition-colors"
+        >
+          Download CSV
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+        <p class="text-slate-400 text-sm mb-1">Page Views</p>
+        <p class="text-3xl font-display font-bold text-white">2.4M</p>
+        <div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full bg-indigo-500 w-[70%]"></div>
+        </div>
+      </div>
+      
+      <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+        <p class="text-slate-400 text-sm mb-1">Avg. Duration</p>
+        <p class="text-3xl font-display font-bold text-white">4m 12s</p>
+        <div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full bg-emerald-500 w-[45%]"></div>
+        </div>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+        <p class="text-slate-400 text-sm mb-1">Conversion Rate</p>
+        <p class="text-3xl font-display font-bold text-white">3.8%</p>
+        <div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full bg-purple-500 w-[30%]"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm flex flex-col">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-display font-semibold text-white">Revenue Trends</h2>
+        
+        <select 
+          v-model="selectedPeriod"
+          class="bg-slate-950 border border-white/10 rounded-lg text-xs text-slate-400 px-3 py-1 outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+        >
+          <option value="7d">Last 7 days</option>
+          <option value="30d">Last 30 days</option>
+        </select>
+      </div>
+      
+      <div class="h-64 w-full">
+        <SharedSimpleChart :data="chartData" />
+      </div>
+      
+      <div class="mt-4 pt-4 border-t border-white/5">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs text-slate-500">Edit values (0-100%)</p>
+          <span v-if="saving" class="text-xs text-indigo-400">Saving...</span>
+          <span v-else-if="saved" class="text-xs text-emerald-400">✓ Saved</span>
+        </div>
+        <div class="flex items-end justify-between gap-2">
+          <div 
+            v-for="(value, index) in chartData" 
+            :key="index"
+            class="flex-1 flex flex-col items-center"
+          >
+            <input
+              type="number"
+              :value="value"
+              @blur="(e) => updateValue(index, e.target.value)"
+              @keydown.enter="(e) => { e.target.blur() }"
+              min="0"
+              max="100"
+              class="w-full bg-slate-950 border border-white/10 rounded text-xs text-center text-slate-300 py-1 outline-none focus:border-indigo-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              :placeholder="index + 1"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm">
+        <h3 class="text-lg font-display font-semibold text-white mb-6">Top Referrers</h3>
+        <div class="space-y-5">
+          <div v-for="source in sources" :key="source.name" class="group">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-300 font-medium">{{ source.name }}</span>
+              <span class="text-slate-400">{{ source.value }}%</span>
+            </div>
+            <div class="h-2 w-full bg-slate-950 rounded-full overflow-hidden border border-white/5">
+              <div 
+                class="h-full rounded-full transition-all duration-1000 group-hover:brightness-125"
+                :class="source.color"
+                :style="{ width: source.value + '%' }"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-900/40 border border-white/5 backdrop-blur-sm">
+        <h3 class="text-lg font-display font-semibold text-white mb-6">Device Breakdown</h3>
+        <div class="flex items-center gap-4 mb-8">
+           <div class="flex-1 h-32 bg-slate-950 rounded-xl border border-white/5 flex items-end justify-center pb-0 overflow-hidden relative group">
+             <div class="w-12 bg-indigo-500/80 h-[60%] rounded-t-lg group-hover:h-[65%] transition-all"></div>
+             <span class="absolute bottom-2 text-xs text-white">Mobile</span>
+           </div>
+           <div class="flex-1 h-32 bg-slate-950 rounded-xl border border-white/5 flex items-end justify-center pb-0 overflow-hidden relative group">
+             <div class="w-12 bg-purple-500/80 h-[80%] rounded-t-lg group-hover:h-[85%] transition-all"></div>
+             <span class="absolute bottom-2 text-xs text-white">Desktop</span>
+           </div>
+           <div class="flex-1 h-32 bg-slate-950 rounded-xl border border-white/5 flex items-end justify-center pb-0 overflow-hidden relative group">
+             <div class="w-12 bg-emerald-500/80 h-[20%] rounded-t-lg group-hover:h-[25%] transition-all"></div>
+             <span class="absolute bottom-2 text-xs text-white">Tablet</span>
+           </div>
+        </div>
+        <p class="text-sm text-slate-400">
+          Desktop traffic is performing 25% better than mobile this week. Consider optimizing mobile checkout flow.
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+const sources = [
+  { name: 'Direct', value: 45, color: 'bg-indigo-500' },
+  { name: 'Google Search', value: 32, color: 'bg-purple-500' },
+  { name: 'Twitter / X', value: 15, color: 'bg-sky-500' },
+  { name: 'Newsletter', value: 8, color: 'bg-emerald-500' },
+]
+
+const selectedPeriod = ref('7d')
+const saving = ref(false)
+const saved = ref(false)
+
+const data7d = ref([35, 45, 30, 60, 75, 50, 65, 80, 70, 45, 90, 60])
+const data30d = ref([15, 20, 25, 40, 30, 45, 35, 30, 50, 60, 55, 40])
+
+const fetchData = async () => {
+  try {
+    const response = await $fetch('/api/revenue')
+    data7d.value = response['7d']
+    data30d.value = response['30d']
+  } catch (error) {
+    console.error('Failed to fetch revenue data:', error)
+  }
+}
+
+onMounted(() => {
+  fetchData()
+})
+
+const chartData = computed(() => {
+  return selectedPeriod.value === '7d' ? data7d.value : data30d.value
+})
+
+const updateValue = async (index, newValue) => {
+  const value = Math.max(0, Math.min(100, parseInt(newValue) || 0))
+  
+  if (selectedPeriod.value === '7d') {
+    data7d.value[index] = value
+  } else {
+    data30d.value[index] = value
+  }
+  
+  // Save to backend
+  saving.value = true
+  saved.value = false
+  
+  try {
+    await $fetch('/api/revenue', {
+      method: 'POST',
+      body: {
+        period: selectedPeriod.value,
+        dataIndex: index,
+        value
+      }
+    })
+    saved.value = true
+    setTimeout(() => { saved.value = false }, 2000)
+  } catch (error) {
+    console.error('Failed to save:', error)
+  } finally {
+    saving.value = false
+  }
+}
+
+const downloadCSV = () => {
+  const headers = ['Data Point', 'Value']
+  
+  const rows = chartData.value.map((value, index) => {
+    return [`Point ${index + 1}`, value]
+  })
+  
+  const csvContent = [
+    headers.join(','), 
+    ...rows.map(row => row.join(','))
+  ].join('\n')
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.setAttribute('href', url)
+  link.setAttribute('download', `analytics_report_${selectedPeriod.value}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+</script>

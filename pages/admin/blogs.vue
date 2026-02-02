@@ -268,7 +268,7 @@ onMounted(() => {
 const fetchPosts = async () => {
   loading.value = true
   try {
-    const response = await $fetch('/api/blogs', {
+    const response = await $fetch('/api/admin/blogs', {
       params: {
         page: currentPage.value,
         limit: itemsPerPage.value,
@@ -324,14 +324,14 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     if (isEditing.value) {
-      await $fetch(`/api/blogs/${form.value.id}`, {
+      await $fetch(`/api/admin/blogs/${form.value.id}`, {
         method: 'PUT',
         body: form.value
       })
       toastTitle.value = 'Updated'
       toastMessage.value = 'Blog post updated successfully.'
     } else {
-      await $fetch('/api/blogs', {
+      await $fetch('/api/admin/blogs', {
         method: 'POST',
         body: form.value
       })
@@ -361,7 +361,7 @@ const handleDelete = async () => {
   if (!postToDelete.value) return
   
   try {
-    await $fetch(`/api/blogs/${postToDelete.value.id}`, { method: 'DELETE' })
+    await $fetch(`/api/admin/blogs/${postToDelete.value.id}`, { method: 'DELETE' })
     toastTitle.value = 'Deleted'
     toastMessage.value = 'Blog post deleted.'
     toastType.value = 'success'

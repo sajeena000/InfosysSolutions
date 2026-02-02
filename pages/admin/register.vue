@@ -21,7 +21,7 @@ const form = ref({
 // Check if registration is enabled
 onMounted(async () => {
   try {
-    const result = await $fetch('/api/auth/check-registration')
+    const result = await $fetch('/api/admin/auth/check-registration')
     registrationEnabled.value = result.registrationEnabled
     if (!result.registrationEnabled) {
       router.push('/admin/login')
@@ -48,7 +48,7 @@ const handleRegister = async () => {
   error.value = ''
   
   try {
-    await $fetch('/api/auth/register', {
+    await $fetch('/api/admin/auth/register', {
       method: 'POST',
       body: {
         name: form.value.name,
