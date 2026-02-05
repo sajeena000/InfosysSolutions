@@ -17,8 +17,8 @@
           >
             {{ status }}
           </button>
-        </div>
-
+        </div>  
+        
         <button 
           v-if="canAddMembers"
           @click="openAddModal"
@@ -239,7 +239,7 @@
 </template>
 
 <script setup>
-import { MoreHorizontal, X, Trash2, Pencil } from 'lucide-vue-next'
+import { X, Trash2, Pencil } from 'lucide-vue-next'
 import ConfirmModal from '~/components/ui/ConfirmModal.vue'
 import { useAppStore } from '~/stores/appStore'
 import { usePermissions } from '~/composables/usePermissions'
@@ -325,7 +325,11 @@ const openEditModal = (member) => {
 const handleSubmit = async () => {
   try {
     if (isEditing.value) {
-      await store.editTeamMember(form.value)
+      // Find original member to preserve fields that aren't in the form (like tags, online status)
+      const originalMember = store.team.find(m => m.id === form.value.id) || {}
+      const payload = { ...originalMember, ...form.value }
+      
+      await store.editTeamMember(payload)
       toastTitle.value = "Updated"
       toastMessage.value = "Team member details updated."
       toastType.value = "success"
