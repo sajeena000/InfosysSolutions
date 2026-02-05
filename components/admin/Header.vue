@@ -68,6 +68,7 @@
     </div>
 
     <div class="flex items-center gap-4 relative">
+      <!-- The Notification System -->
       <button 
         @click="showNotifications = !showNotifications"
         class="p-2 text-slate-400 hover:text-white transition-colors relative focus:outline-none"
@@ -78,7 +79,7 @@
           class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full animate-pulse"
         ></span>
       </button>
-
+      <!-- Notification Dropdown -->
       <div 
         v-if="showNotifications"
         class="absolute right-0 top-12 w-80 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-xl z-50 transform origin-top-right transition-all"

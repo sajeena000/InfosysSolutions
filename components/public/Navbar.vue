@@ -5,9 +5,9 @@
         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
           <span class="text-white font-bold text-lg">IS</span>
         </div>
-        <span class="font-display font-bold text-xl text-slate-900 dark:text-white transition-colors">Infosys</span>
+        <span class="font-display font-bold text-xl text-slate-900 dark:text-white transition-colors">Infosys Solutions</span>
       </NuxtLink>
-
+<!-- Desktop Menu -->
       <div class="hidden lg:flex items-center gap-1">
         <NuxtLink 
           to="/" 

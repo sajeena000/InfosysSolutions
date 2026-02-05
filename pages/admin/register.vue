@@ -24,10 +24,10 @@ onMounted(async () => {
     const result = await $fetch('/api/admin/auth/check-registration')
     registrationEnabled.value = result.registrationEnabled
     if (!result.registrationEnabled) {
-      router.push('/admin/login')
+      router.push('/login')
     }
   } catch (e) {
-    router.push('/admin/login')
+    router.push('/login')
   } finally {
     checkingRegistration.value = false
   }
@@ -59,7 +59,7 @@ const handleRegister = async () => {
     })
     
     // Redirect to login with success message
-    router.push('/admin/login')
+    router.push('/login')
   } catch (e) {
     error.value = e.data?.message || e.statusMessage || 'Registration failed'
     isLoading.value = false
@@ -144,7 +144,7 @@ const handleRegister = async () => {
       </form>
 
       <div class="mt-6 text-center">
-        <NuxtLink to="/admin/login" class="text-slate-400 hover:text-slate-300 text-sm inline-flex items-center gap-1">
+        <NuxtLink to="/login" class="text-slate-400 hover:text-slate-300 text-sm inline-flex items-center gap-1">
           <arrow-left-icon class="w-3.5 h-3.5" />
           Back to Sign In
         </NuxtLink>

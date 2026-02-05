@@ -1,12 +1,10 @@
 <template>
   <aside class="h-full flex flex-col bg-slate-900/50 backdrop-blur-xl border-r border-white/5">
-    
     <div class="h-16 flex items-center px-6 border-b border-white/5">
       <NuxtLink to="/admin">
         <UiLogo />
       </NuxtLink>
     </div>
-
     <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
       <p class="px-4 text-[10px] uppercase tracking-wider text-slate-500 mb-2">Main</p>
       <NuxtLink 
@@ -114,7 +112,7 @@ const handleLogout = () => {
 const confirmLogout = () => {
   showLogoutConfirm.value = false
   store.logout()
-  router.push('/admin/login')
+  router.push('/login')
 }
 
 const mainLinks = [

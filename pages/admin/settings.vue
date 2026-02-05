@@ -189,7 +189,7 @@ const handleLogout = async () => {
   try {
     await $fetch('/api/admin/auth/logout', { method: 'POST' })
     store.logout()
-    router.push('/admin/login')
+    router.push('/login')
   } catch (e) {
     console.error('Logout failed:', e)
   }

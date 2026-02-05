@@ -9,7 +9,7 @@ const publicRoutes = [
   '/news/blog',
   '/news/events',
   '/contact',
-  '/admin/login',
+  '/login',
   '/admin/register'
 ]
 
@@ -24,11 +24,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
     return
   }
 
-  if (to.path === '/admin/login' && store.isAuthenticated) {
+  if (to.path === '/login' && store.isAuthenticated) {
     return navigateTo('/admin')
   }
 
   if (to.path.startsWith('/admin') && !store.isAuthenticated) {
-    return navigateTo('/admin/login')
+    return navigateTo('/login')
   }
 })
