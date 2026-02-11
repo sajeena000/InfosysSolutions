@@ -125,3 +125,22 @@ export const notifications = pgTable('notifications', {
   isRead: boolean('is_read').default(false),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// Table 10: Project Submissions (public-facing project requests with payment)
+export const projectSubmissions = pgTable('project_submissions', {
+  id: serial('id').primaryKey(),
+  fullName: text('full_name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
+  companyName: text('company_name'),
+  projectTitle: text('project_title').notNull(),
+  projectType: text('project_type', { enum: ['Web', 'Mobile', 'AI', 'DevOps', 'Consulting', 'Other'] }).notNull(),
+  pricingPackage: pricingPackage('pricing_package').notNull(),
+  description: text('description').notNull(),
+  timeline: text('timeline'),
+  paymentMethod: text('payment_method', { enum: ['esewa', 'onsite'] }).notNull(),
+  paymentStatus: text('payment_status', { enum: ['pending', 'paid', 'failed'] }).default('pending'),
+  esewaTransactionId: text('esewa_transaction_id'),
+  amount: integer('amount').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
