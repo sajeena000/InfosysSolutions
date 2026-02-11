@@ -185,9 +185,15 @@ const alertMessage = ref('')
 const openFaq = ref(null)
 
 const handleBuyNow = (plan) => {
-  alertMessage.value = `${plan} plan coming soon! Contact us for more information.`
-  showAlert.value = true
-  setTimeout(() => { showAlert.value = false }, 4000)
+  if (plan === 'Enterprise') {
+    alertMessage.value = 'Enterprise plan is custom-tailored. Contact us for more information.'
+    showAlert.value = true
+    setTimeout(() => { showAlert.value = false }, 4000)
+    return
+  }
+
+  const amounts = { Basic: 2999, Professional: 9999 }
+  navigateTo(`/payment?plan=${plan}&amount=${amounts[plan]}`)
 }
 
 const toggleFaq = (index) => {
