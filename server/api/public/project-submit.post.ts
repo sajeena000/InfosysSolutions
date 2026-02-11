@@ -9,6 +9,25 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Missing required fields' })
   }
 
+  // Validate Enums
+  const validPackages = ['Basic', 'Professional', 'Enterprise', 'Custom'];
+  if (!validPackages.includes(body.pricingPackage)) {
+    console.error('Invalid pricing package received:', body.pricingPackage);
+    throw createError({ statusCode: 400, message: `Invalid pricing package: ${body.pricingPackage}` });
+  }
+
+  const validProjectTypes = ['Web', 'Mobile', 'AI', 'DevOps', 'Consulting', 'Other'];
+  if (!validProjectTypes.includes(body.projectType)) {
+    throw createError({ statusCode: 400, message: `Invalid project type: ${body.projectType}` });
+  }
+
+  const validPaymentMethods = ['esewa', 'onsite'];
+  if (!validPaymentMethods.includes(body.paymentMethod)) {
+    throw createError({ statusCode: 400, message: `Invalid payment method: ${body.paymentMethod}` });
+  }
+
+  console.log('Inserting submission:', { ...body, amount: Number(body.amount) });
+
   const [submission] = await db
     .insert(projectSubmissions)
     .values({

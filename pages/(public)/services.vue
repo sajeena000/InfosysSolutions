@@ -23,7 +23,7 @@
               <p class="text-slate-600 dark:text-slate-400 text-sm">Perfect for startups and small projects</p>
             </div>
             <div class="mb-6">
-              <span class="text-4xl font-display font-bold text-slate-900 dark:text-white">$2,999</span>
+              <span class="text-4xl font-display font-bold text-slate-900 dark:text-white">Rs. 2,999</span>
               <span class="text-slate-500 text-sm">/project</span>
             </div>
             <ul class="space-y-3 mb-8">
@@ -49,7 +49,7 @@
               <p class="text-blue-100 dark:text-white/80 text-sm">For growing businesses with complex needs</p>
             </div>
             <div class="mb-6">
-              <span class="text-4xl font-display font-bold text-white">$9,999</span>
+              <span class="text-4xl font-display font-bold text-white">Rs. 9,999</span>
               <span class="text-blue-100/70 dark:text-white/70 text-sm">/project</span>
             </div>
             <ul class="space-y-3 mb-8">
