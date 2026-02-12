@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: `Invalid project type: ${body.projectType}` });
   }
 
-  const validPaymentMethods = ['esewa', 'onsite'];
+  const validPaymentMethods = ['esewa', 'onsite', 'paypal'];
   if (!validPaymentMethods.includes(body.paymentMethod)) {
     throw createError({ statusCode: 400, message: `Invalid payment method: ${body.paymentMethod}` });
   }

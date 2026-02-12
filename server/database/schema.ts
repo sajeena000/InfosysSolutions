@@ -138,9 +138,10 @@ export const projectSubmissions = pgTable('project_submissions', {
   pricingPackage: pricingPackage('pricing_package').notNull(),
   description: text('description').notNull(),
   timeline: text('timeline'),
-  paymentMethod: text('payment_method', { enum: ['esewa', 'onsite'] }).notNull(),
-  paymentStatus: text('payment_status', { enum: ['pending', 'paid', 'failed'] }).default('pending'),
+  paymentMethod: text('payment_method', { enum: ['esewa', 'onsite', 'paypal'] }).notNull(),
+  paymentStatus: text('payment_status', { enum: ['pending', 'paid', 'failed', 'cancelled'] }).default('pending'),
   esewaTransactionId: text('esewa_transaction_id'),
+  paypalOrderId: text('paypal_order_id'),
   amount: integer('amount').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
