@@ -39,7 +39,7 @@
           <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
             <li class="flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-              Insufficient balance in your eSewa account
+              Insufficient balance in your account
             </li>
             <li class="flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
@@ -51,7 +51,7 @@
             </li>
             <li class="flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-              eSewa service temporarily unavailable
+              Payment service temporarily unavailable
             </li>
           </ul>
         </div>

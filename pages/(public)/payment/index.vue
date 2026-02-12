@@ -224,6 +224,32 @@
                 In-person Experience
               </div>
             </button>
+
+            <!-- PayPal Card -->
+            <button
+              @click="form.paymentMethod = 'paypal'"
+              class="relative p-6 rounded-2xl border-2 transition-all duration-300 text-left group"
+              :class="form.paymentMethod === 'paypal'
+                ? 'border-blue-700 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-700/20'
+                : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-blue-400 dark:hover:border-blue-700/50'"
+            >
+              <div v-if="form.paymentMethod === 'paypal'" class="absolute top-3 right-3">
+                <div class="w-6 h-6 rounded-full bg-blue-700 flex items-center justify-center">
+                  <Check class="w-4 h-4 text-white" />
+                </div>
+              </div>
+              <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700 shadow-sm">
+                 <div class="font-bold italic text-2xl text-blue-800">P<span class="text-sky-500">P</span></div>
+              </div>
+              <h3 class="text-lg font-display font-bold text-slate-900 dark:text-white mb-1">Pay with PayPal</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                Safe and secure international payments
+              </p>
+              <div class="mt-4 flex items-center gap-2 text-blue-800 dark:text-blue-400 text-sm font-medium">
+                <Globe class="w-4 h-4" />
+                Global Standard
+              </div>
+            </button>
           </div>
         </div>
 
@@ -260,7 +286,7 @@
           >
             <Loader2 v-if="isSubmitting" class="w-4 h-4 animate-spin" />
             <template v-else>
-              {{ form.paymentMethod === 'esewa' ? 'Pay with eSewa' : 'Submit & Visit Office' }}
+              {{ form.paymentMethod === 'esewa' ? 'Pay with eSewa' : form.paymentMethod === 'paypal' ? 'Pay with PayPal' : 'Submit & Visit Office' }}
               <ArrowRight class="w-4 h-4" />
             </template>
           </button>
@@ -286,7 +312,7 @@
 <script setup>
 import {
   Check, User, FileText, CreditCard, Package, Wallet, Building,
-  ArrowLeft, ArrowRight, MapPin, Zap, Loader2, AlertCircle
+  ArrowLeft, ArrowRight, MapPin, Zap, Loader2, AlertCircle, Globe
 } from 'lucide-vue-next'
 
 definePageMeta({
@@ -350,6 +376,16 @@ const submitForm = async () => {
     if (form.paymentMethod === 'onsite') {
       // Redirect to onsite payment page
       navigateTo(`/payment/onsite?id=${submission.id}`)
+    } else if (form.paymentMethod === 'paypal') {
+        // Init PayPal
+        const data = await $fetch('/api/public/paypal-initiate', {
+            method: 'POST',
+            body: { submissionId: submission.id }
+        })
+        
+        if (data.approvalUrl) {
+            window.location.href = data.approvalUrl
+        }
     } else {
       // Get eSewa form data
       const data = await $fetch('/api/public/esewa-initiate', {

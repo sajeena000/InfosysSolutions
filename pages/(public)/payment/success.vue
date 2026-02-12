@@ -28,7 +28,7 @@
           Payment Complete!
         </h2>
         <p class="text-slate-600 dark:text-slate-400 mb-10 max-w-lg mx-auto">
-          Thank you for your payment via eSewa. We've received your project submission and payment. Our team will reach out to you shortly.
+          Thank you for your payment. We've received your project submission and payment. Our team will reach out to you shortly.
         </p>
 
         <!-- Transaction Summary -->
@@ -48,7 +48,7 @@
             </div>
             <div class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-700">
               <span class="text-sm text-slate-500 dark:text-slate-400">Payment Method</span>
-              <span class="text-sm font-medium text-slate-900 dark:text-white">eSewa</span>
+              <span class="text-sm font-medium text-slate-900 dark:text-white">{{ paymentMethod }}</span>
             </div>
             <div class="flex justify-between items-center py-3">
               <span class="text-sm text-slate-500 dark:text-slate-400">Status</span>
@@ -111,11 +111,18 @@ definePageMeta({
   layout: 'public'
 })
 
+
 const route = useRoute()
 const transactionId = computed(() => route.query.txn || 'N/A')
 const formattedAmount = computed(() => {
   const amount = parseInt(route.query.amount) || 0
   return amount.toLocaleString()
+})
+const paymentMethod = computed(() =>  {
+  const method = route.query.method
+  if (method === 'paypal') return 'PayPal'
+  if (method === 'esewa') return 'eSewa'
+  return 'Online Payment'
 })
 </script>
 
