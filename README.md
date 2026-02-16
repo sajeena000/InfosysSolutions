@@ -1,4 +1,4 @@
-# Infosys Solutions — Corporate Dashboard & Website
+# Infosys Solutions - Corporate Dashboard & Website
 
 A full-stack corporate website with an admin dashboard built using **Nuxt 4**, **Vue 3**, **Tailwind CSS**, and **PostgreSQL**.
 
