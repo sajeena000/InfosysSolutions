@@ -7,7 +7,7 @@
       </div>
       <div class="flex gap-2">
         <button 
-          @click="downloadCSV"
+          @click="handleDownloadCSV"
           class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg text-sm font-medium border border-white/10 transition-colors"
         >
           Download CSV
@@ -196,26 +196,15 @@ const updateValue = async (index, newValue) => {
   }
 }
 
-const downloadCSV = () => {
+const { downloadCSV } = useDownloadCSV()
+
+const handleDownloadCSV = () => {
   const headers = ['Data Point', 'Value']
   
   const rows = chartData.value.map((value, index) => {
     return [`Point ${index + 1}`, value]
   })
   
-  const csvContent = [
-    headers.join(','), 
-    ...rows.map(row => row.join(','))
-  ].join('\n')
-  
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.setAttribute('href', url)
-  link.setAttribute('download', `analytics_report_${selectedPeriod.value}.csv`)
-  link.style.visibility = 'hidden'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  downloadCSV(headers, rows, `analytics_report_${selectedPeriod.value}.csv`)
 }
 </script>
