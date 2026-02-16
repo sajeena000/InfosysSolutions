@@ -23,7 +23,7 @@
               <p class="text-slate-600 dark:text-slate-400 text-sm">Perfect for startups and small projects</p>
             </div>
             <div class="mb-6">
-              <span class="text-4xl font-display font-bold text-slate-900 dark:text-white">Rs. 2,999</span>
+              <span class="text-4xl font-display font-bold text-slate-900 dark:text-white">Rs. 60,000</span>
               <span class="text-slate-500 text-sm">/project</span>
             </div>
             <ul class="space-y-3 mb-8">
@@ -40,6 +40,7 @@
             </button>
           </div>
 
+          <!-- Professional Plan -->
           <div class="relative p-8 bg-blue-600 dark:bg-slate-800 rounded-3xl shadow-2xl shadow-blue-500/20 dark:shadow-blue-500/10 scale-105 border border-blue-500/50">
             <div class="absolute top-0 right-6 -translate-y-1/2 px-4 py-1 bg-amber-400 text-slate-900 text-xs font-bold rounded-full">
               POPULAR
@@ -49,7 +50,7 @@
               <p class="text-blue-100 dark:text-white/80 text-sm">For growing businesses with complex needs</p>
             </div>
             <div class="mb-6">
-              <span class="text-4xl font-display font-bold text-white">Rs. 9,999</span>
+              <span class="text-4xl font-display font-bold text-white">Rs. 130,000</span>
               <span class="text-blue-100/70 dark:text-white/70 text-sm">/project</span>
             </div>
             <ul class="space-y-3 mb-8">
@@ -192,7 +193,7 @@ const handleBuyNow = (plan) => {
     return
   }
 
-  const amounts = { Basic: 2999, Professional: 9999 }
+  const amounts = { Basic: 60000, Professional: 130000 }
   navigateTo(`/payment?plan=${plan}&amount=${amounts[plan]}`)
 }
 

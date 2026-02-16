@@ -292,7 +292,7 @@
           </button>
         </div>
 
-        <!-- Error Alert -->
+          <!-- Error Alert -->
         <div v-if="errorMessage" class="mt-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl flex items-center gap-3">
           <AlertCircle class="w-5 h-5 text-red-500 shrink-0" />
           <span class="text-sm text-red-700 dark:text-red-400">{{ errorMessage }}</span>
@@ -318,8 +318,9 @@ import {
 definePageMeta({
   layout: 'public'
 })
-
+// Gets access to the current URL so we can read query parameters.
 const route = useRoute()
+// Creates a reference to control that hidden eSewa form.
 const esewaFormRef = ref(null)
 
 // Get plan info from query params

@@ -1,5 +1,5 @@
 import { db } from '../../utils/db'
-import { projectSubmissions } from '../../database/schema'
+import { projectSubmissions, notifications, activityLogs } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -45,6 +45,23 @@ export default defineEventHandler(async (event) => {
       amount: body.amount,
     })
     .returning()
+
+  // Notify admin about the new project submission
+  const methodLabel = body.paymentMethod === 'onsite' ? 'Onsite (pending visit)' : body.paymentMethod === 'paypal' ? 'PayPal' : 'eSewa'
+  const isOnsite = body.paymentMethod === 'onsite'
+
+  await db.insert(notifications).values({
+    text: isOnsite
+      ? `📋 New project submission from ${body.fullName} — onsite payment pending (Rs. ${Number(body.amount).toLocaleString()})`
+      : `📋 New project submission from ${body.fullName} — paying Rs. ${Number(body.amount).toLocaleString()} via ${methodLabel}`,
+    type: isOnsite ? 'info' : 'info',
+    color: isOnsite ? 'bg-blue-500' : 'bg-indigo-500',
+  })
+
+  await db.insert(activityLogs).values({
+    text: `New project "${body.projectTitle}" submitted by ${body.fullName} (${methodLabel} — Rs. ${Number(body.amount).toLocaleString()})`,
+    type: 'info',
+  })
 
   return submission
 })

@@ -1,5 +1,5 @@
 import { db } from '../../utils/db'
-import { projectSubmissions } from '../../database/schema'
+import { projectSubmissions, notifications, activityLogs } from '../../database/schema'
 import { eq } from 'drizzle-orm'
 import { getPaypalConfig, getPaypalAccessToken } from '../../utils/paypal-config'
 
@@ -42,19 +42,29 @@ export default defineEventHandler(async (event) => {
             .update(projectSubmissions)
             .set({ 
                 paymentStatus: 'paid',
-                // You might want to store capture ID too if needed, but order ID is usually sufficient
             })
             .where(eq(projectSubmissions.paypalOrderId, orderId))
             
-        // Redirect to success
-        // We might need to fetch the submission to get details for success page if needed,
-        // or just pass basic info.
+        // Fetch the submission to get details for notification
          const [submission] = await db
             .select()
             .from(projectSubmissions)
             .where(eq(projectSubmissions.paypalOrderId, orderId))
             
         const amount = submission?.amount || 0
+
+        // Notify admin — notification bell
+        await db.insert(notifications).values({
+          text: `💰 Payment received: Rs. ${amount.toLocaleString()} from ${submission?.fullName || 'a client'} via PayPal`,
+          type: 'success',
+          color: 'bg-emerald-500',
+        })
+
+        // Notify admin — activity log
+        await db.insert(activityLogs).values({
+          text: `Payment of Rs. ${amount.toLocaleString()} received via PayPal for "${submission?.projectTitle || 'Unknown project'}"`,
+          type: 'success',
+        })
         
         return sendRedirect(event, `/infosys/payment/success?txn=${orderId}&amount=${amount}&method=paypal`)
     } else {

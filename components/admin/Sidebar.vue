@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { Home, PieChart, Settings, Users, LogOut, FileText, Calendar, Mail, Briefcase, ExternalLink } from 'lucide-vue-next'
+import { Home, PieChart, Settings, Users, LogOut, FileText, Calendar, Mail, Briefcase, ExternalLink, CreditCard } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
 import { usePermissions } from '~/composables/usePermissions'
 
@@ -126,6 +126,7 @@ const cmsLinks = [
   { name: 'Blog Posts', path: '/admin/blogs', icon: FileText },
   { name: 'Events', path: '/admin/events', icon: Calendar },
   { name: 'Inquiries', path: '/admin/contacts', icon: Mail },
+  { name: 'Payments', path: '/admin/payments', icon: CreditCard },
   { name: 'Projects', path: '/admin/projects', icon: Briefcase },
 ]
 </script>
