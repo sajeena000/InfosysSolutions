@@ -48,7 +48,7 @@
             <div class="p-6">
               <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-3">
                 <Calendar class="w-4 h-4" />
-                <span>{{ formatDate(post.publishedAt || post.createdAt) }}</span>
+                <span>{{ formatDate(post.publishedAt || post.createdAt, 'long') }}</span>
               </div>
               <h3 class="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2 line-clamp-2">
                 {{ post.title }}
@@ -110,27 +110,6 @@ onMounted(async () => {
   }
 })
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'Unknown date'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+const { formatDate } = useFormatters()
 </script>
 
-<style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>

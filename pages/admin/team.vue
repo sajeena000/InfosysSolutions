@@ -287,7 +287,7 @@
       </div>
     </Teleport>
 
-    <ConfirmModal 
+    <UiConfirmModal 
       v-model="isDeleting"
       title="Remove Team Member"
       :description="`Are you sure you want to remove ${memberToDelete?.name} from the team? This action cannot be undone.`"
@@ -301,7 +301,6 @@
 
 <script setup>
 import { X, Trash2, Pencil, Linkedin, Mail } from 'lucide-vue-next'
-import ConfirmModal from '~/components/ui/ConfirmModal.vue'
 import { useAppStore } from '~/stores/appStore'
 import { usePermissions } from '~/composables/usePermissions'
 
@@ -459,11 +458,3 @@ const handleDelete = async () => {
 }
 </script>
 
-<style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>

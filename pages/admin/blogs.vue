@@ -233,6 +233,7 @@ import { FileText, Pencil, Trash2, X } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
 
 const store = useAppStore()
+const { formatDate } = useFormatters()
 
 const posts = ref([])
 const loading = ref(true)
@@ -375,15 +376,6 @@ const handleDelete = async () => {
     postToDelete.value = null
     toastRef.value.show()
   }
-}
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'Unknown'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
 }
 
 // Auto-generate slug from title

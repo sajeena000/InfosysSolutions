@@ -52,7 +52,7 @@
           <div class="flex items-center gap-4 text-slate-600 dark:text-white/70">
             <div class="flex items-center gap-2">
               <Calendar class="w-4 h-4" />
-              <span class="text-sm">{{ formatDate(post.publishedAt || post.createdAt) }}</span>
+              <span class="text-sm">{{ formatDate(post.publishedAt || post.createdAt, 'long') }}</span>
             </div>
             <span>•</span>
             <span class="text-sm">{{ readingTime }} min read</span>
@@ -128,14 +128,7 @@ onMounted(async () => {
   }
 })
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'Unknown date'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+const { formatDate } = useFormatters()
 
 const readingTime = computed(() => {
   if (!post.value?.content) return 1

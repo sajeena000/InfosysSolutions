@@ -394,6 +394,7 @@ import { Briefcase, Pencil, Trash2, X, ChevronDown } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
 
 const store = useAppStore()
+const { formatCurrency, formatDate } = useFormatters()
 
 // Pricing package values
 const PRICING_VALUES = {
@@ -616,23 +617,5 @@ const handleDelete = async () => {
     projectToDelete.value = null
     toastRef.value.show()
   }
-}
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(value || 0)
-}
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'Unknown'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
 }
 </script>

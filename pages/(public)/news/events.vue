@@ -56,7 +56,7 @@
                   <div class="flex items-center gap-4 text-sm text-blue-600 dark:text-blue-400 mb-3">
                     <div class="flex items-center gap-2">
                       <Calendar class="w-4 h-4" />
-                      <span>{{ formatDate(event.eventDate) }}</span>
+                      <span>{{ formatDate(event.eventDate, 'withWeekday') }}</span>
                     </div>
                   </div>
                   <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">{{ event.title }}</h3>
@@ -96,7 +96,7 @@
                   <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-3">
                     <div class="flex items-center gap-2">
                       <Calendar class="w-4 h-4" />
-                      <span>{{ formatDate(event.eventDate) }}</span>
+                      <span>{{ formatDate(event.eventDate, 'withWeekday') }}</span>
                     </div>
                   </div>
                   <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">{{ event.title }}</h3>
@@ -153,6 +153,8 @@ onMounted(async () => {
   }
 })
 
+const { formatDate } = useFormatters()
+
 const now = new Date()
 
 const upcomingEvents = computed(() => {
@@ -162,23 +164,5 @@ const upcomingEvents = computed(() => {
 const pastEvents = computed(() => {
   return events.value.filter(e => new Date(e.eventDate) < now)
 })
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'TBD'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
 </script>
 
-<style scoped>
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>

@@ -71,7 +71,7 @@
             <p class="text-slate-300 text-sm whitespace-pre-wrap">{{ contact.message }}</p>
 
             <p class="text-slate-500 text-xs mt-4">
-              Received {{ formatDate(contact.createdAt) }}
+              Received {{ formatDate(contact.createdAt, 'withTime') }}
             </p>
           </div>
 
@@ -123,6 +123,7 @@ import { Mail, Phone, Tag, Trash2 } from 'lucide-vue-next'
 import { useAppStore } from '~/stores/appStore'
 
 const store = useAppStore()
+const { formatDate } = useFormatters()
 
 const contacts = ref([])
 const loading = ref(true)
@@ -222,14 +223,5 @@ const handleDelete = async () => {
   }
 }
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'Unknown'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+
 </script>

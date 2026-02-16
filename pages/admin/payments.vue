@@ -162,7 +162,7 @@
 
             <!-- Date -->
             <td class="px-6 py-4">
-              <span class="text-xs text-slate-500">{{ formatDate(payment.createdAt) }}</span>
+              <span class="text-xs text-slate-500">{{ formatDate(payment.createdAt, 'withTime') }}</span>
             </td>
 
             <!-- Action -->
@@ -204,6 +204,7 @@ import { CreditCard, Wallet, Building, Globe, CheckCircle } from 'lucide-vue-nex
 import { useAppStore } from '~/stores/appStore'
 
 const store = useAppStore()
+const { formatDate } = useFormatters()
 
 const payments = ref([])
 const loading = ref(true)
@@ -296,14 +297,5 @@ const updatePaymentStatus = async (event, payment) => {
   toastRef.value.show()
 }
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'Unknown'
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+
 </script>

@@ -152,6 +152,7 @@ import { DollarSign, Users, Briefcase, Building2, FileText, Calendar, Mail } fro
 import { useAppStore } from '~/stores/appStore'
 
 const store = useAppStore()
+const { formatCurrency } = useFormatters()
 
 // Stats from API
 const stats = ref({
@@ -180,13 +181,4 @@ onMounted(() => {
 const chartData = computed(() => {
   return stats.value.chartData || []
 })
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(value)
-}
 </script>
