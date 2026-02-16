@@ -7,7 +7,7 @@
       </div>
       <div class="flex gap-2">
         <button 
-          @click="downloadCSV"
+          @click="handleDownloadCSV"
           class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg text-sm font-medium border border-white/10 transition-colors"
         >
           Download CSV
@@ -130,6 +130,9 @@
 </template>
 
 <script setup>
+const { formatCurrency } = useFormatters()
+const { downloadCSV } = useDownloadCSV()
+
 const metrics = ref({
   pipelineValue: 0,
   avgContractValue: 0,
@@ -193,16 +196,7 @@ onMounted(() => {
   fetchData()
 })
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(value)
-}
-
-const downloadCSV = () => {
+const handleDownloadCSV = () => {
   const headers = ['Month', 'Revenue', 'Chart Value (%)']
   
   const rows = revenueTrends.value.map((trend, index) => {
@@ -223,20 +217,7 @@ const downloadCSV = () => {
     ...projectTypes.value.map(t => [t.name, t.count, `${t.percentage}%`])
   ]
   
-  const csvContent = [
-    headers.join(','), 
-    ...rows.map(row => row.join(',')),
-    ...summaryRows.map(row => row.join(','))
-  ].join('\n')
-  
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.setAttribute('href', url)
-  link.setAttribute('download', `analytics_report_${new Date().toISOString().split('T')[0]}.csv`)
-  link.style.visibility = 'hidden'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  const allRows = [...rows, ...summaryRows]
+  downloadCSV(headers, allRows, `analytics_report_${new Date().toISOString().split('T')[0]}.csv`)
 }
 </script>
