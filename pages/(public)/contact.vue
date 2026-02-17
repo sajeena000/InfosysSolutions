@@ -76,25 +76,29 @@
 
           <!-- Contact Form -->
           <div class="bg-slate-50 dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 transition-colors duration-300">
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+            <form @submit.prevent="onSubmit" class="space-y-6">
               <div class="grid md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Full Name *</label>
                   <input 
-                    v-model="form.name"
+                    v-model="name"
+                    v-bind="nameAttrs"
                     type="text" 
-                    required
                     class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    :class="{ 'border-red-500 focus:ring-red-500': errors.name }"
                   />
+                  <p v-if="errors.name" class="mt-1 text-sm text-red-500">{{ errors.name }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email *</label>
                   <input 
-                    v-model="form.email"
+                    v-model="email"
+                    v-bind="emailAttrs"
                     type="email" 
-                    required
                     class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    :class="{ 'border-red-500 focus:ring-red-500': errors.email }"
                   />
+                  <p v-if="errors.email" class="mt-1 text-sm text-red-500">{{ errors.email }}</p>
                 </div>
               </div>
 
@@ -102,16 +106,21 @@
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone</label>
                   <input 
-                    v-model="form.phone"
+                    v-model="phone"
+                    v-bind="phoneAttrs"
                     type="tel" 
                     class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    :class="{ 'border-red-500 focus:ring-red-500': errors.phone }"
                   />
+                  <p v-if="errors.phone" class="mt-1 text-sm text-red-500">{{ errors.phone }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Subject</label>
                   <select 
-                    v-model="form.subject"
+                    v-model="subject"
+                    v-bind="subjectAttrs"
                     class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    :class="{ 'border-red-500 focus:ring-red-500': errors.subject }"
                   >
                     <option value="">Select a subject</option>
                     <option value="Project Inquiry">Project Inquiry</option>
@@ -120,27 +129,30 @@
                     <option value="Careers">Careers</option>
                     <option value="Other">Other</option>
                   </select>
+                  <p v-if="errors.subject" class="mt-1 text-sm text-red-500">{{ errors.subject }}</p>
                 </div>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Message *</label>
                 <textarea 
-                  v-model="form.message"
-                  required
+                  v-model="message"
+                  v-bind="messageAttrs"
                   rows="5"
                   class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  :class="{ 'border-red-500 focus:ring-red-500': errors.message }"
                   placeholder="Tell us about your project or inquiry..."
                 ></textarea>
+                <p v-if="errors.message" class="mt-1 text-sm text-red-500">{{ errors.message }}</p>
               </div>
 
               <button 
                 type="submit"
-                :disabled="submitting"
+                :disabled="isSubmitting"
                 class="w-full py-4 bg-blue-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:bg-blue-500 hover:scale-[1.02] transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
               >
-                <Loader2 v-if="submitting" class="w-5 h-5 animate-spin" />
-                {{ submitting ? 'Sending...' : 'Send Message' }}
+                <Loader2 v-if="isSubmitting" class="w-5 h-5 animate-spin" />
+                {{ isSubmitting ? 'Sending...' : 'Send Message' }}
               </button>
             </form>
           </div>
@@ -194,43 +206,45 @@
 <script setup>
 import { MapPin, Mail, Phone, Linkedin, Twitter, Github, Loader2, CheckCircle, AlertCircle, X } from 'lucide-vue-next'
 
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { contactFormSchema } from '~/utils/schemas'
+
 definePageMeta({
   layout: 'public'
 })
 
-const form = ref({
-  name: '',
-  email: '',
-  phone: '',
-  subject: '',
-  message: ''
-})
-
-const submitting = ref(false)
 const showSuccess = ref(false)
 const showError = ref(false)
 const errorMessage = ref('')
 
-const handleSubmit = async () => {
-  submitting.value = true
+const { defineField, handleSubmit, errors, isSubmitting, resetForm } = useForm({
+  validationSchema: toTypedSchema(contactFormSchema),
+})
+
+const [name, nameAttrs] = defineField('name')
+const [email, emailAttrs] = defineField('email')
+const [phone, phoneAttrs] = defineField('phone')
+const [subject, subjectAttrs] = defineField('subject')
+const [message, messageAttrs] = defineField('message')
+
+const onSubmit = handleSubmit(async (values) => {
   showError.value = false
 
   try {
     await $fetch('/api/public/contact', {
       method: 'POST',
-      body: form.value
+      body: values
     })
 
     showSuccess.value = true
-    form.value = { name: '', email: '', phone: '', subject: '', message: '' }
+    resetForm()
   } catch (error) {
     errorMessage.value = 'Failed to send message. Please try again.'
     showError.value = true
     setTimeout(() => { showError.value = false }, 4000)
-  } finally {
-    submitting.value = false
   }
-}
+})
 </script>
 
 <style scoped>
