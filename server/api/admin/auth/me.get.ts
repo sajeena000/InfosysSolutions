@@ -29,7 +29,8 @@ export default defineEventHandler(async (event) => {
             name: admin.name,
             email: admin.email,
             isPrimary: admin.isPrimary,
-            allowRegistration: admin.allowRegistration
+            allowRegistration: admin.allowRegistration,
+            twoFactorEnabled: admin.twoFactorEnabled
         };
     } catch (error: any) {
         if (error.statusCode) throw error;

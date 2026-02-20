@@ -92,6 +92,8 @@ export const admins = pgTable('admins', {
   passwordHash: text('password_hash').notNull(),
   isPrimary: boolean('is_primary').default(false), // Only the seeded admin
   allowRegistration: boolean('allow_registration').default(false), // Only settable by primary
+  twoFactorSecret: text('two_factor_secret'),
+  twoFactorEnabled: boolean('two_factor_enabled').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

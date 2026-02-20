@@ -38,6 +38,7 @@ interface AdminProfile {
   email: string
   isPrimary?: boolean | null
   allowRegistration?: boolean | null
+  twoFactorEnabled?: boolean | null
 }
 
 export const useAppStore = defineStore('app', {
@@ -49,7 +50,8 @@ export const useAppStore = defineStore('app', {
       name: 'Admin',
       email: 'admin@dashboard.com',
       isPrimary: false,
-      allowRegistration: false
+      allowRegistration: false,
+      twoFactorEnabled: false
     } as AdminProfile,
     activities: [] as Activity[],
     team: [] as TeamMember[],
@@ -92,7 +94,8 @@ export const useAppStore = defineStore('app', {
             name: me.name,
             email: me.email,
             isPrimary: me.isPrimary,
-            allowRegistration: me.allowRegistration
+            allowRegistration: me.allowRegistration,
+            twoFactorEnabled: me.twoFactorEnabled
           }
         } catch (e) {
           // Session invalid, clear auth state
@@ -137,7 +140,8 @@ export const useAppStore = defineStore('app', {
         name: 'Admin',
         email: 'admin@dashboard.com',
         isPrimary: false,
-        allowRegistration: false
+        allowRegistration: false,
+        twoFactorEnabled: false
       }
     },
 

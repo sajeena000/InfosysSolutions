@@ -26,12 +26,30 @@ export default defineEventHandler(async (event) => {
         }
 
         // Verify password
+        // Verify password
         const isValid = await verifyPassword(password, admin.passwordHash);
         if (!isValid) {
             throw createError({
                 statusCode: 401,
                 statusMessage: 'Invalid email or password',
             });
+        }
+
+        // Check 2FA
+        if (admin.twoFactorEnabled) {
+            // Set temporary cookie for 2FA verification
+            setCookie(event, 'admin-2fa-pending', String(admin.id), {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 60 * 5, // 5 minutes
+                path: '/'
+            });
+
+            return {
+                requiresTwoFactor: true,
+                tempToken: String(admin.id) // In a real app this should be obfuscated/tokenized
+            };
         }
 
         // Set auth cookie with admin ID
@@ -49,7 +67,8 @@ export default defineEventHandler(async (event) => {
             name: admin.name,
             email: admin.email,
             isPrimary: admin.isPrimary,
-            allowRegistration: admin.allowRegistration
+            allowRegistration: admin.allowRegistration,
+            twoFactorEnabled: admin.twoFactorEnabled
         };
     } catch (error: any) {
         if (error.statusCode) throw error;
