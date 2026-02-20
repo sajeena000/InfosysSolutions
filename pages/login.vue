@@ -15,6 +15,41 @@ const registrationEnabled = ref(false)
 const email = ref('')
 const password = ref('')
 
+const requiresTwoFactor = ref(false)
+const twoFactorCode = ref('')
+const tempToken = ref('')
+
+const handle2FA = async () => {
+  isLoading.value = true
+  error.value = ''
+  
+  try {
+    const result = await $fetch('/api/admin/auth/2fa/validate', {
+      method: 'POST',
+      body: {
+        token: twoFactorCode.value,
+        tempToken: tempToken.value
+      }
+    })
+    
+    // Update store with user info (same as login success)
+    store.isAuthenticated = true
+    store.userProfile = {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      isPrimary: result.isPrimary,
+      allowRegistration: result.allowRegistration
+    }
+    localStorage.setItem('is-auth', 'true')
+    
+    router.push('/admin')
+  } catch (e) {
+    error.value = e.data?.message || e.statusMessage || 'Invalid code'
+    isLoading.value = false
+  }
+}
+
 // Check if registration is enabled
 onMounted(async () => {
   try {
@@ -38,6 +73,13 @@ const handleLogin = async () => {
       }
     })
     
+    if (result.requiresTwoFactor) {
+      requiresTwoFactor.value = true
+      tempToken.value = result.tempToken
+      isLoading.value = false
+      return
+    }
+
     // Update store with user info
     store.isAuthenticated = true
     store.userProfile = {
@@ -71,7 +113,7 @@ const handleLogin = async () => {
         <p class="text-slate-400 text-sm">Sign in to access your dashboard</p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-4">
+      <form v-if="!requiresTwoFactor" @submit.prevent="handleLogin" class="space-y-4">
         <div class="space-y-1">
           <label class="text-sm font-medium text-slate-300">Email</label>
           <input 
@@ -104,6 +146,40 @@ const handleLogin = async () => {
         >
           <span v-if="!isLoading">Sign In</span>
           <div v-else class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        </button>
+      </form>
+
+      <form v-else @submit.prevent="handle2FA" class="space-y-4">
+        <div class="space-y-1">
+          <label class="text-sm font-medium text-slate-300">Two-Factor Authenticator Code</label>
+          <input 
+            v-model="twoFactorCode"
+            type="text" 
+            placeholder="123456"
+            required
+            maxlength="6"
+            class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all text-center tracking-widest text-lg"
+          />
+        </div>
+
+        <div v-if="error" class="text-rose-400 text-sm text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">
+          {{ error }}
+        </div>
+
+        <button 
+          :disabled="isLoading"
+          class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center"
+        >
+          <span v-if="!isLoading">Verify</span>
+          <div v-else class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        </button>
+        
+        <button 
+          type="button"
+          @click="requiresTwoFactor = false; twoFactorCode = ''; error = ''"
+          class="w-full text-slate-400 hover:text-white text-sm transition-colors"
+        >
+          Back to Login
         </button>
       </form>
 
