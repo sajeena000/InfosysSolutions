@@ -1,84 +1,54 @@
-# Infosys Solutions - Corporate Dashboard & Website
+# Infosys Solutions — Dashboard & Website
 
-A full-stack corporate website with an admin dashboard built using **Nuxt 4**, **Vue 3**, **Tailwind CSS**, and **PostgreSQL**.
+A full-stack corporate website and admin dashboard built with **Nuxt 4**, **Vue 3**, **Tailwind CSS**, and **PostgreSQL**.
 
 ## Features
 
-### Public Website
-- Responsive landing page with dark/light mode and glassmorphism UI
-- **Services & Pricing**: plan selection with online payment flow
-- **Payment Integration**: eSewa (Nepal) and PayPal gateways
-- **Projects Gallery**: completed project showcase
-- **News & Events**: blog posts and event listings
-- **About Us**: company info and team profiles
-- **Contact**: inquiry form
-- **AI Chatbot**: Google Gemma 3 powered assistant
+**Public Site** - Landing page · Services & Pricing · Payment (eSewa / PayPal) · Projects Gallery · News & Events · About · Contact · AI Chatbot (Gemma 3)
 
-### Admin Dashboard
-- Secure login & registration with role-based access
-- **Analytics**: revenue, client retention, and pipeline charts
-- **CMS**: manage Blogs, Events, Projects, and Team members
-- **Payments**: view, filter, and manage all project submissions & payment statuses
-- **Contacts**: track and respond to inquiries
-- **Global Search**: instant search across all modules
-- **Settings**: persistent app configuration
+**Admin Dashboard** - Analytics & Charts · CMS (Blogs, Events, Projects, Team) · Payments Management · Contact Inquiries · Global Search · Settings · 2FA Authentication
 
 ## Tech Stack
 
-| Layer | Technology |
+| Layer | Tech |
 |---|---|
-| Framework | Nuxt 4 |
-| Frontend | Vue 3, Tailwind CSS, Lucide Icons |
+| Framework | Nuxt 4, Vue 3 |
+| Styling | Tailwind CSS, Lucide Icons |
 | State | Pinia |
-| Database | PostgreSQL |
-| ORM | Drizzle ORM |
+| Database | PostgreSQL, Drizzle ORM |
+| Auth | bcrypt, TOTP-based 2FA |
 | Payments | eSewa, PayPal |
 | AI | Google GenAI SDK (Gemma 3) |
 
-## Getting Started
-
-### Prerequisites
-- Node.js (LTS)
-- PostgreSQL
-
-### Setup
+## Quick Start
 
 ```bash
-# Clone & install
-git clone <repository_url>
-cd dashboard
+git clone <repository_url> && cd dashboard
 npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your database URL, API keys, and payment credentials
-
-# Push database schema
-npx drizzle-kit push
-
-# Start dev server
-npm run dev
+cp .env.example .env   # configure your env variables
+npx drizzle-kit push   # push DB schema
+npm run dev             # start dev server
 ```
 
-### Environment Variables
+## Environment Variables
 
 | Variable | Description |
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string |
 | `GEMINI_API_KEY` | Google GenAI API key |
-| `ESEWA_MERCHANT_CODE` | eSewa merchant code (`EPAYTEST` for sandbox) |
+| `ESEWA_MERCHANT_CODE` | eSewa merchant code |
 | `ESEWA_SECRET_KEY` | eSewa secret key |
-| `ESEWA_ENV` | `development` or `production` |
+| `ESEWA_ENV` | `development` / `production` |
 | `PAYPAL_CLIENT_ID` | PayPal client ID |
 | `PAYPAL_CLIENT_SECRET` | PayPal client secret |
-| `PAYPAL_ENV` | `sandbox` or `production` |
+| `PAYPAL_ENV` | `sandbox` / `production` |
 | `APP_BASE_URL` | Application base URL |
 
 ## Scripts
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npx drizzle-kit push` | Push schema to database |
-| `npx drizzle-kit studio` | Launch Drizzle Studio (DB GUI) |
+| `npm run dev` | Dev server |
+| `npm run build` | Production build |
+| `npx drizzle-kit push` | Push schema to DB |
+| `npx drizzle-kit studio` | Drizzle Studio (DB GUI) |
